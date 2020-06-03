@@ -5,8 +5,9 @@
 #ifndef ACACIA_ACACIA_H
 #define ACACIA_ACACIA_H
 
-#include "registry.h"
-#include "registrator.h"
+#include <registry/registry.h>
+#include <registry/registrator.h>
+#include <assertions/assertions.h>
 
 extern acacia::Registry acaciaRuntime;
 

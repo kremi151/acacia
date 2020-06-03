@@ -5,16 +5,16 @@ set(CMAKE_CXX_STANDARD 17)
 
 set(SOURCES
         source/acacia.cpp
-        source/registry.cpp
-        source/registrator.cpp
+        source/registry/registry.cpp
+        source/registry/registrator.cpp
         source/exceptions/assertion_exception.cpp
 #        source/debug_Test.cpp
         )
 
 set(HEADERS
         source/acacia.h
-        source/registry.h
-        source/registrator.h
+        source/registry/registry.h
+        source/registry/registrator.h
         source/exceptions/assertion_exception.h
         source/assertions/assertions.h
         source/assertions/equality_assertions.h
