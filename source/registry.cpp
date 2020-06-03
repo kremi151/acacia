@@ -10,6 +10,11 @@
 
 using namespace acacia;
 
+Test __Acacia__nullTest = {nullptr, "", "" };
+
+Registry::Registry(): currentTestFromList(nullptr) {
+}
+
 void Registry::registerTest(const char *fileName, const char *testName, void (*testPtr)()) {
     Test test;
     test.testPtr = testPtr;
@@ -26,6 +31,7 @@ int Registry::runTests() {
     for (auto i = tests.begin() ; i != end ; i++) {
         testCount++;
         auto &test = *i;
+        currentTestFromList = &test;
         try {
             test.testPtr();
             successCount++;
@@ -45,6 +51,7 @@ int Registry::runTests() {
             std::cerr << "   Error happened in " << test.fileName << ", unknown line" << std::endl;
             errorCount++;
         }
+        currentTestFromList = nullptr;
     }
 
     if (errorCount > 0) {
@@ -54,4 +61,12 @@ int Registry::runTests() {
     }
 
     return errorCount;
+}
+
+const Test & Registry::currentTest() {
+    if (currentTestFromList == nullptr) {
+        return __Acacia__nullTest;
+    } else {
+        return *currentTestFromList;
+    }
 }

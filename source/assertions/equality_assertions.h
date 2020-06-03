@@ -5,6 +5,7 @@
 #ifndef ACACIA_EQUALITY_ASSERTIONS_H
 #define ACACIA_EQUALITY_ASSERTIONS_H
 
+#include <acacia.h>
 #include <exceptions/assertion_exception.h>
 #include <sstream>
 
@@ -13,7 +14,7 @@ auto ex = expected, ac = actual; \
 if (ex != ac) { \
     std::stringstream ss; \
     ss << "Expected " << ex << " but got " << ac; \
-    throw acacia::AssertionException(__FILE__, "TODO: Fetch test name", __LINE__, ss.str().c_str()); \
+    throw acacia::AssertionException(__FILE__, acaciaRuntime.currentTest().testName.c_str(), __LINE__, ss.str().c_str()); \
 }
 
 #define assertNotEquals(expected, actual) \
@@ -21,7 +22,7 @@ auto ex = expected, ac = actual; \
 if (ex == ac) { \
     std::stringstream ss; \
     ss << "Expected " << ex << " to not equal " << ac; \
-    throw acacia::AssertionException(__FILE__, "TODO: Fetch test name", __LINE__, ss.str().c_str()); \
+    throw acacia::AssertionException(__FILE__, acaciaRuntime.currentTest().testName.c_str(), __LINE__, ss.str().c_str()); \
 }
 
 #endif //ACACIA_EQUALITY_ASSERTIONS_H
