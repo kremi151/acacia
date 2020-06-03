@@ -6,14 +6,7 @@
 #define ACACIA_ACACIA_H
 
 #include <registry/registry.h>
-#include <registry/registrator.h>
 #include <assertions/assertions.h>
-
-namespace acacia {
-
-    Registry &runtime();
-
-}
 
 #define TEST(name) \
 void __Acacia__Test__##name(); \

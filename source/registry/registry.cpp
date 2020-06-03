@@ -15,6 +15,11 @@ Test __Acacia__nullTest = {nullptr, "", "" };
 Registry::Registry(): currentTestFromList(nullptr) {
 }
 
+Registry & Registry::instance() {
+    static Registry registry;
+    return registry;
+}
+
 void Registry::registerTest(const char *fileName, const char *testName, void (*testPtr)()) {
     Test test;
     test.testPtr = testPtr;
@@ -69,4 +74,8 @@ const Test & Registry::currentTest() {
     } else {
         return *currentTestFromList;
     }
+}
+
+Registration::Registration(const char *fileName, const char *testName, void (*testPtr)()) noexcept {
+    Registry::instance().registerTest(fileName, testName, testPtr);
 }

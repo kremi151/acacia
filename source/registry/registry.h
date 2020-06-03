@@ -18,14 +18,21 @@ namespace acacia {
 
     class Registry{
     private:
+        Registry();
+
         std::vector<Test> tests;
         Test *currentTestFromList;
     public:
-        Registry();
-
         void registerTest(const char *fileName, const char *testName, void (*testPtr)());
         int runTests();
         const Test &currentTest();
+
+        static Registry &instance();
+    };
+
+    class Registration{
+    public:
+        Registration(const char *fileName, const char *testName, void (*testPtr)()) noexcept;
     };
 
 }
