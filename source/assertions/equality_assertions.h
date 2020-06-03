@@ -14,7 +14,7 @@
 if (ex != ac) { \
     std::stringstream ss; \
     ss << "Expected " << ex << " but got " << ac; \
-    throw acacia::AssertionException(__FILE__, acaciaRuntime.currentTest().testName.c_str(), __LINE__, ss.str().c_str()); \
+    throw acacia::AssertionException(__FILE__, acacia::runtime().currentTest().testName.c_str(), __LINE__, ss.str().c_str()); \
 }}
 
 #define assertNotEquals(expected, actual) \
@@ -22,7 +22,7 @@ if (ex != ac) { \
 if (ex == ac) { \
     std::stringstream ss; \
     ss << "Expected " << ex << " to not equal " << ac; \
-    throw acacia::AssertionException(__FILE__, acaciaRuntime.currentTest().testName.c_str(), __LINE__, ss.str().c_str()); \
+    throw acacia::AssertionException(__FILE__, acacia::runtime().currentTest().testName.c_str(), __LINE__, ss.str().c_str()); \
 }}
 
 #endif //ACACIA_EQUALITY_ASSERTIONS_H

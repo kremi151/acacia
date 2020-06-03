@@ -9,7 +9,11 @@
 #include <registry/registrator.h>
 #include <assertions/assertions.h>
 
-extern acacia::Registry acaciaRuntime;
+namespace acacia {
+
+    Registry &runtime();
+
+}
 
 #define TEST(name) \
 void __Acacia__Test__##name(); \

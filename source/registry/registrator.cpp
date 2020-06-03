@@ -9,5 +9,5 @@
 using namespace acacia;
 
 Registration::Registration(const char *fileName, const char *testName, void (*testPtr)()) noexcept {
-    acaciaRuntime.registerTest(fileName, testName, testPtr);
+    runtime().registerTest(fileName, testName, testPtr);
 }

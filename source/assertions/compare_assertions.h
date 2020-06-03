@@ -14,11 +14,11 @@
 if (sm > bg) { \
     std::stringstream ss; \
     ss << "Expected " << bg << " to be bigger than " << sm << ", but was smaller"; \
-    throw acacia::AssertionException(__FILE__, acaciaRuntime.currentTest().testName.c_str(), __LINE__, ss.str().c_str()); \
+    throw acacia::AssertionException(__FILE__, acacia::runtime().currentTest().testName.c_str(), __LINE__, ss.str().c_str()); \
 } else if (sm == bg) { \
     std::stringstream ss; \
     ss << "Expected " << bg << " to be bigger than " << sm << ", but was equal"; \
-    throw acacia::AssertionException(__FILE__, acaciaRuntime.currentTest().testName.c_str(), __LINE__, ss.str().c_str()); \
+    throw acacia::AssertionException(__FILE__, acacia::runtime().currentTest().testName.c_str(), __LINE__, ss.str().c_str()); \
 }}
 
 #define assertBiggerOrEqualTo(biggest, smallest) \
@@ -26,7 +26,7 @@ if (sm > bg) { \
 if (sm > bg) { \
     std::stringstream ss; \
     ss << "Expected " << bg << " to be bigger than " << sm << ", but was smaller"; \
-    throw acacia::AssertionException(__FILE__, acaciaRuntime.currentTest().testName.c_str(), __LINE__, ss.str().c_str()); \
+    throw acacia::AssertionException(__FILE__, acacia::runtime().currentTest().testName.c_str(), __LINE__, ss.str().c_str()); \
 }}
 
 #define assertSmallerThan(smallest, biggest) \
@@ -34,11 +34,11 @@ if (sm > bg) { \
 if (sm > bg) { \
     std::stringstream ss; \
     ss << "Expected " << sm << " to be smaller than " << bg << ", but was bigger"; \
-    throw acacia::AssertionException(__FILE__, acaciaRuntime.currentTest().testName.c_str(), __LINE__, ss.str().c_str()); \
+    throw acacia::AssertionException(__FILE__, acacia::runtime().currentTest().testName.c_str(), __LINE__, ss.str().c_str()); \
 } else if (sm == bg) { \
     std::stringstream ss; \
     ss << "Expected " << sm << " to be smaller than " << bg << ", but was equal"; \
-    throw acacia::AssertionException(__FILE__, acaciaRuntime.currentTest().testName.c_str(), __LINE__, ss.str().c_str()); \
+    throw acacia::AssertionException(__FILE__, acacia::runtime().currentTest().testName.c_str(), __LINE__, ss.str().c_str()); \
 }}
 
 #define assertSmallerOrEqualTo(smallest, biggest) \
@@ -46,7 +46,7 @@ if (sm > bg) { \
 if (sm > bg) { \
     std::stringstream ss; \
     ss << "Expected " << sm << " to be smaller than " << bg << ", but was bigger"; \
-    throw acacia::AssertionException(__FILE__, acaciaRuntime.currentTest().testName.c_str(), __LINE__, ss.str().c_str()); \
+    throw acacia::AssertionException(__FILE__, acacia::runtime().currentTest().testName.c_str(), __LINE__, ss.str().c_str()); \
 }}
 
 #endif //ACACIA_COMPARE_ASSERTIONS_H

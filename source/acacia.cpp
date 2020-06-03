@@ -3,5 +3,13 @@
 //
 
 #include "acacia.h"
+#include <memory>
 
-acacia::Registry acaciaRuntime;
+std::unique_ptr<acacia::Registry> acaciaRuntime;
+
+acacia::Registry &acacia::runtime() {
+    if (!acaciaRuntime) {
+        acaciaRuntime = std::make_unique<Registry>();
+    }
+    return *acaciaRuntime;
+}
