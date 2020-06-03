@@ -20,7 +20,7 @@ set(HEADERS
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DFB_DEBUG")
 
-add_library(acacia SHARED ${SOURCES} ${HEADERS})
+add_library(acacia STATIC ${SOURCES} ${HEADERS})
 #add_executable(acacia ${SOURCES} ${HEADERS})
 
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/source")
