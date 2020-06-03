@@ -18,6 +18,7 @@ set(HEADERS
         source/exceptions/assertion_exception.h
         source/assertions/assertions.h
         source/assertions/equality_assertions.h
+        source/assertions/compare_assertions.h
         )
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DFB_DEBUG")

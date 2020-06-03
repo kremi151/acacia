@@ -10,19 +10,19 @@
 #include <sstream>
 
 #define assertEquals(expected, actual) \
-auto ex = expected, ac = actual; \
+{auto ex = expected, ac = actual; \
 if (ex != ac) { \
     std::stringstream ss; \
     ss << "Expected " << ex << " but got " << ac; \
     throw acacia::AssertionException(__FILE__, acaciaRuntime.currentTest().testName.c_str(), __LINE__, ss.str().c_str()); \
-}
+}}
 
 #define assertNotEquals(expected, actual) \
-auto ex = expected, ac = actual; \
+{auto ex = expected, ac = actual; \
 if (ex == ac) { \
     std::stringstream ss; \
     ss << "Expected " << ex << " to not equal " << ac; \
     throw acacia::AssertionException(__FILE__, acaciaRuntime.currentTest().testName.c_str(), __LINE__, ss.str().c_str()); \
-}
+}}
 
 #endif //ACACIA_EQUALITY_ASSERTIONS_H
