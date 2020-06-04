@@ -9,20 +9,28 @@
 #include <exceptions/assertion_exception.h>
 #include <sstream>
 
+template <class _type>
+void __acacia_assertEquals(_type expected, _type actual, const char *file, unsigned int line) {
+    if (expected != actual) {
+        std::stringstream ss;
+        ss << "Expected " << expected << " but got " << actual;
+        throw acacia::AssertionException(file, acacia::Registry::instance().currentTest().testName, line, ss.str());
+    }
+}
+
 #define assertEquals(expected, actual) \
-{auto ex = expected, ac = actual; \
-if (ex != ac) { \
-    std::stringstream ss; \
-    ss << "Expected " << ex << " but got " << ac; \
-    throw acacia::AssertionException(__FILE__, acacia::Registry::instance().currentTest().testName.c_str(), __LINE__, ss.str().c_str()); \
-}}
+__acacia_assertEquals(expected, actual, __FILE__, __LINE__);
+
+template <class _type>
+void __acacia_assertNotEquals(_type expected, _type actual, const char *file, unsigned int line) {
+    if (expected == actual) {
+        std::stringstream ss;
+        ss << "Expected " << expected << " to not equal " << actual;
+        throw acacia::AssertionException(file, acacia::Registry::instance().currentTest().testName, line, ss.str());
+    }
+}
 
 #define assertNotEquals(expected, actual) \
-{auto ex = expected, ac = actual; \
-if (ex == ac) { \
-    std::stringstream ss; \
-    ss << "Expected " << ex << " to not equal " << ac; \
-    throw acacia::AssertionException(__FILE__, acacia::Registry::instance().currentTest().testName.c_str(), __LINE__, ss.str().c_str()); \
-}}
+__acacia_assertNotEquals(expected, actual, __FILE__, __LINE__);
 
 #endif //ACACIA_EQUALITY_ASSERTIONS_H

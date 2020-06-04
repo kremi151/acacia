@@ -6,8 +6,8 @@
 
 using namespace acacia;
 
-AssertionException::AssertionException(const char *fileName, const char *testName, unsigned int line,
-                                       const char *message): std::exception(message), fileName(fileName), testName(testName), line(line), message(message) {
+AssertionException::AssertionException(const char *fileName, std::string testName, unsigned int line,
+                                       std::string message): std::exception(), fileName(fileName), testName(std::move(testName)), line(line), message(std::move(message)) {
 }
 
 const char * AssertionException::what() const {

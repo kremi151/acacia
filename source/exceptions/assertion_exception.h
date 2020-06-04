@@ -17,7 +17,7 @@ namespace acacia {
         const unsigned int line;
         const std::string message;
     public:
-        AssertionException(const char* fileName, const char* testName, unsigned int line, const char* message);
+        AssertionException(const char* fileName, std::string testName, unsigned int line, std::string message);
 
         const char *what() const override;
         const std::string &getFileName() const;
