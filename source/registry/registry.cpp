@@ -43,7 +43,7 @@ int Registry::runTests() {
         } catch (const AssertionException &ex) {
             std::cerr << "Test " << test.testName << " failed:" << std::endl;
             std::cerr << "   Assertion error: " << ex.what() << std::endl;
-            std::cerr << "   Error happened in " << ex.getFileName() << ":" << ex.getLine();
+            std::cerr << "   Error happened in " << ex.getFileName() << ":" << ex.getLine() << std::endl;
             errorCount++;
         } catch (const std::exception &ex) {
             std::cerr << "Test " << test.testName << " failed:" << std::endl;
