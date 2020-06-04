@@ -10,7 +10,7 @@
 #include <sstream>
 
 template <class _type>
-void __acacia_assertEquals(_type expected, _type actual, const char *file, unsigned int line) {
+void __acacia_assertEquals(const _type &expected, const _type &actual, const char *file, unsigned int line) {
     if (expected != actual) {
         std::stringstream ss;
         ss << "Expected " << expected << " but got " << actual;
@@ -22,7 +22,7 @@ void __acacia_assertEquals(_type expected, _type actual, const char *file, unsig
 __acacia_assertEquals(expected, actual, __FILE__, __LINE__);
 
 template <class _type>
-void __acacia_assertNotEquals(_type expected, _type actual, const char *file, unsigned int line) {
+void __acacia_assertNotEquals(const _type &expected, const _type &actual, const char *file, unsigned int line) {
     if (expected == actual) {
         std::stringstream ss;
         ss << "Expected " << expected << " to not equal " << actual;

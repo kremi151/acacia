@@ -10,7 +10,7 @@
 #include <sstream>
 
 template <class _type>
-void __acacia_assertBiggerThan(_type biggest, _type smallest, const char *file, unsigned int line) {
+void __acacia_assertBiggerThan(const _type &biggest, const _type &smallest, const char *file, unsigned int line) {
     if (smallest > biggest) {
         std::stringstream ss;
         ss << "Expected " << biggest << " to be bigger than " << smallest << ", but was smaller";
@@ -26,7 +26,7 @@ void __acacia_assertBiggerThan(_type biggest, _type smallest, const char *file, 
 __acacia_assertBiggerThan(biggest, smallest, __FILE__, __LINE__);
 
 template <class _type>
-void __acacia_assertSmallerThan(_type smallest, _type biggest, const char *file, unsigned int line) {
+void __acacia_assertSmallerThan(const _type &smallest, const _type &biggest, const char *file, unsigned int line) {
     if (smallest > biggest) {
         std::stringstream ss;
         ss << "Expected " << smallest << " to be smaller than " << biggest << ", but was bigger";
@@ -42,7 +42,7 @@ void __acacia_assertSmallerThan(_type smallest, _type biggest, const char *file,
 __acacia_assertSmallerThan(smallest, biggest, __FILE__, __LINE__);
 
 template <class _type>
-void __acacia_assertBiggerOrEqualTo(_type biggest, _type smallest, const char *file, unsigned int line) {
+void __acacia_assertBiggerOrEqualTo(const _type &biggest, const _type &smallest, const char *file, unsigned int line) {
     if (smallest > biggest) {
         std::stringstream ss;
         ss << "Expected " << biggest << " to be bigger than " << smallest << ", but was smaller";
@@ -54,7 +54,7 @@ void __acacia_assertBiggerOrEqualTo(_type biggest, _type smallest, const char *f
 __acacia_assertBiggerOrEqualTo(biggest, smallest, __FILE__, __LINE__);
 
 template <class _type>
-void __acacia_assertSmallerOrEqualTo(_type smallest, _type biggest, const char *file, unsigned int line) {
+void __acacia_assertSmallerOrEqualTo(const _type &smallest, const _type &biggest, const char *file, unsigned int line) {
     if (smallest > biggest) {
         std::stringstream ss;
         ss << "Expected " << smallest << " to be smaller than " << biggest << ", but was bigger";
