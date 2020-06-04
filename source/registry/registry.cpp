@@ -28,10 +28,13 @@ void Registry::registerTest(const char *fileName, const char *testName, void (*t
     tests.push_back(test);
 }
 
-int Registry::runTests() {
+Report Registry::runTests() {
     size_t testCount = 0;
     size_t successCount = 0;
     size_t errorCount = 0;
+
+    Report report;
+
     auto end = tests.end();
     for (auto i = tests.begin() ; i != end ; i++) {
         testCount++;
@@ -39,25 +42,31 @@ int Registry::runTests() {
         currentTestFromList = &test;
         try {
             test.testPtr();
+            report.addResult(test.fileName, test.testName, true, "");
             successCount++;
         } catch (const AssertionException &ex) {
             std::cerr << "Test " << test.testName << " failed:" << std::endl;
             std::cerr << "   Assertion error: " << ex.what() << std::endl;
             std::cerr << "   Error happened in " << ex.getFileName() << ":" << ex.getLine() << std::endl;
+            report.addResult(test.fileName, test.testName, false, "");
             errorCount++;
         } catch (const std::exception &ex) {
             std::cerr << "Test " << test.testName << " failed:" << std::endl;
             std::cerr << "   Unexpected exception: " << ex.what() << std::endl;
             std::cerr << "   Error happened in " << test.fileName << ", unknown line" << std::endl;
+            report.addResult(test.fileName, test.testName, false, "");
             errorCount++;
         } catch (...) {
             std::cerr << "Test " << test.testName << " failed:" << std::endl;
             std::cerr << "   Unexpected exception, no further information available" << std::endl;
             std::cerr << "   Error happened in " << test.fileName << ", unknown line" << std::endl;
+            report.addResult(test.fileName, test.testName, false, "");
             errorCount++;
         }
         currentTestFromList = nullptr;
     }
+
+    report.setCounts(testCount, successCount, errorCount);
 
     if (errorCount > 0) {
         std::cout << errorCount << " out of " << testCount << " tests have failed" << std::endl;
@@ -65,7 +74,7 @@ int Registry::runTests() {
         std::cout << "All " << testCount << " tests have completed successfully!" << std::endl;
     }
 
-    return errorCount;
+    return report;
 }
 
 const Test & Registry::currentTest() {

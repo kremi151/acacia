@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(SOURCES
         source/registry/registry.cpp
         source/exceptions/assertion_exception.cpp
-#        source/debug_Test.cpp
+        source/report/report.cpp
         )
 
 set(HEADERS
@@ -16,6 +16,7 @@ set(HEADERS
         source/assertions/assertions.h
         source/assertions/equality_assertions.h
         source/assertions/compare_assertions.h
+        source/report/report.h
         )
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DFB_DEBUG")

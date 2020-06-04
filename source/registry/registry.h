@@ -7,6 +7,7 @@
 
 #include <vector>
 #include <string>
+#include <report/report.h>
 
 namespace acacia {
 
@@ -24,7 +25,7 @@ namespace acacia {
         Test *currentTestFromList;
     public:
         void registerTest(const char *fileName, const char *testName, void (*testPtr)());
-        int runTests();
+        Report runTests();
         const Test &currentTest();
 
         static Registry &instance();

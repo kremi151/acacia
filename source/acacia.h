@@ -7,6 +7,7 @@
 
 #include <registry/registry.h>
 #include <assertions/assertions.h>
+#include <report/report.h>
 
 #define TEST(name) \
 void __Acacia__Test__##name(); \
