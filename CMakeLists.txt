@@ -7,6 +7,7 @@ set(SOURCES
         source/registry/registry.cpp
         source/exceptions/assertion_exception.cpp
         source/report/report.cpp
+        source/report/junit.cpp
         )
 
 set(HEADERS
@@ -17,6 +18,7 @@ set(HEADERS
         source/assertions/equality_assertions.h
         source/assertions/compare_assertions.h
         source/report/report.h
+        source/report/junit.h
         )
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DFB_DEBUG")

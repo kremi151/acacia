@@ -38,6 +38,14 @@ void Report::setCounts(size_t all, size_t success, size_t error) {
     errorCount = error;
 }
 
+std::map<std::string, std::vector<TestResult> >::const_iterator Report::results_begin() {
+    return results.begin();
+}
+
+std::map<std::string, std::vector<TestResult> >::const_iterator Report::results_end() {
+    return results.end();
+}
+
 size_t Report::getTestCount() {
     return testCount;
 }
