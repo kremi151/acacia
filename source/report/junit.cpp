@@ -22,10 +22,10 @@ void acacia::generateJUnitReport(Report &report, std::ofstream &file) {
             // TODO: Support different failure types
             // TODO: Escape assertion message
             file << "\t\t<failure type=\"AssertionError\" message=\"" << test.getAssertion() << " (line " << test.getErrorLine() << ")\">"
-                 << test.getOutput() << "</failure>"
+                 << test.getOutput() << "</failure>" << std::endl
                  << "\t</testcase>" << std::endl;
         }
     }
 
-    file << "\t</testsuite>" << std::endl;
+    file << "</testsuite>" << std::endl;
 }
