@@ -17,11 +17,15 @@ namespace acacia {
     private:
         const std::string testName;
         const bool success;
+        const std::string assertion;
+        const unsigned int errorLine;
         const std::string output;
     public:
-        TestResult(std::string testName, bool success, std::string output);
+        TestResult(std::string testName, bool success, std::string assertion, unsigned int errorLine, std::string output);
 
         const std::string &getTestName() const;
+        const std::string &getAssertion() const;
+        unsigned int getErrorLine() const;
         const std::string &getOutput() const;
         bool isSuccess() const;
     };
@@ -48,7 +52,7 @@ namespace acacia {
 
         explicit operator bool();
 
-        void addResult(const std::string &fileName, std::string testName, bool success, std::string output);
+        void addResult(const std::string &fileName, std::string testName, bool success, std::string assertion, unsigned int errorLine, std::string output);
     };
 
 }

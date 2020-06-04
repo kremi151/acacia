@@ -6,11 +6,20 @@
 
 using namespace acacia;
 
-TestResult::TestResult(std::string testName, bool success, std::string output): testName(std::move(testName)), success(success), output(std::move(output)) {
+TestResult::TestResult(std::string testName, bool success, std::string assertion, unsigned int errorLine, std::string output): testName(std::move(testName)),
+    success(success), assertion(std::move(assertion)), errorLine(errorLine), output(std::move(output)) {
 }
 
 const std::string &TestResult::getTestName() const {
     return testName;
+}
+
+const std::string & TestResult::getAssertion() const {
+    return assertion;
+}
+
+unsigned int TestResult::getErrorLine() const {
+    return errorLine;
 }
 
 const std::string& TestResult::getOutput() const {
@@ -24,12 +33,12 @@ bool TestResult::isSuccess() const {
 Report::Report(): testCount(0), successCount(0), errorCount(0) {
 }
 
-void Report::addResult(const std::string &fileName, std::string testName, bool success, std::string output) {
+void Report::addResult(const std::string &fileName, std::string testName, bool success, std::string assertion, unsigned int errorLine, std::string output) {
     if (results.find(fileName) == results.end()) {
         results.insert(std::pair(fileName, std::vector<TestResult>()));
     }
     std::vector<TestResult> &v = results[fileName];
-    v.emplace_back(std::move(testName), success, std::move(output));
+    v.emplace_back(std::move(testName), success, std::move(assertion), errorLine, std::move(output));
 }
 
 void Report::setCounts(size_t all, size_t success, size_t error) {

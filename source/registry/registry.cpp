@@ -42,25 +42,26 @@ Report Registry::runTests() {
         currentTestFromList = &test;
         try {
             test.testPtr();
-            report.addResult(test.fileName, test.testName, true, "");
+            report.addResult(test.fileName, test.testName, true, "", 0, "");
             successCount++;
         } catch (const AssertionException &ex) {
+            std::string assertionMessage = std::string("Assertion error: ") + ex.what();
             std::cerr << "Test " << test.testName << " failed:" << std::endl;
             std::cerr << "   Assertion error: " << ex.what() << std::endl;
             std::cerr << "   Error happened in " << ex.getFileName() << ":" << ex.getLine() << std::endl;
-            report.addResult(test.fileName, test.testName, false, "");
+            report.addResult(test.fileName, test.testName, false, std::string("Assertion error: ") + ex.what(), ex.getLine(), "");
             errorCount++;
         } catch (const std::exception &ex) {
             std::cerr << "Test " << test.testName << " failed:" << std::endl;
             std::cerr << "   Unexpected exception: " << ex.what() << std::endl;
             std::cerr << "   Error happened in " << test.fileName << ", unknown line" << std::endl;
-            report.addResult(test.fileName, test.testName, false, "");
+            report.addResult(test.fileName, test.testName, false, std::string("Unexpected exception: ") + ex.what(), 0, "");
             errorCount++;
         } catch (...) {
             std::cerr << "Test " << test.testName << " failed:" << std::endl;
             std::cerr << "   Unexpected exception, no further information available" << std::endl;
             std::cerr << "   Error happened in " << test.fileName << ", unknown line" << std::endl;
-            report.addResult(test.fileName, test.testName, false, "");
+            report.addResult(test.fileName, test.testName, false, "Unexpected exception, no further information available", 0, "");
             errorCount++;
         }
         currentTestFromList = nullptr;
