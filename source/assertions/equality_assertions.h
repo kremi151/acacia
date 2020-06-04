@@ -19,7 +19,7 @@ void __acacia_assertEquals(const _type &expected, const _type &actual, const cha
 }
 
 #define assertEquals(expected, actual) \
-__acacia_assertEquals(expected, actual, __FILE__, __LINE__);
+__acacia_assertEquals(expected, actual, __FILE__, __LINE__)
 
 template <class _type>
 void __acacia_assertNotEquals(const _type &expected, const _type &actual, const char *file, unsigned int line) {
@@ -31,6 +31,6 @@ void __acacia_assertNotEquals(const _type &expected, const _type &actual, const 
 }
 
 #define assertNotEquals(expected, actual) \
-__acacia_assertNotEquals(expected, actual, __FILE__, __LINE__);
+__acacia_assertNotEquals(expected, actual, __FILE__, __LINE__)
 
 #endif //ACACIA_EQUALITY_ASSERTIONS_H
