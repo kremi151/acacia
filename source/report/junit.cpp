@@ -5,6 +5,7 @@
 #include "junit.h"
 
 #include <sstream>
+#include <iomanip>
 
 void acacia::generateJUnitReport(Report &report, std::ofstream &file) {
     file << "<testsuite tests=\"" << report.getTestCount() << "\">" << std::endl;
@@ -20,16 +21,15 @@ void acacia::generateJUnitReport(Report &report, std::ofstream &file) {
             totalStdout << test.getOutput();
             totalStderr << test.getErrorOutput();
 
-            file << "\t<testcase classname=\"" << fileName << "\" name=\"" << test.getTestName();
+            file << "\t<testcase classname=" << std::quoted(fileName) << " name=" << std::quoted(test.getTestName());
             if (test.isSuccess()) {
-                file << "\" />" << std::endl;
+                file << " />" << std::endl;
                 continue;
             }
-            file << "\">" << std::endl;
+            file << ">" << std::endl;
 
             // TODO: Support different failure types
-            // TODO: Escape assertion message
-            file << "\t\t<failure type=\"AssertionError\" message=\"" << test.getAssertion() << " (line " << test.getErrorLine() << ")\">"
+            file << "\t\t<failure type=\"AssertionError\" message=" << std::quoted(test.getAssertion() + " (line " + std::to_string(test.getErrorLine()) + ")") << ">"
                  << test.getOutput() << "</failure>" << std::endl
                  << "\t</testcase>" << std::endl;
         }
