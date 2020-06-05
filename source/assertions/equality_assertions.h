@@ -9,8 +9,8 @@
 #include <exceptions/assertion_exception.h>
 #include <sstream>
 
-template <class _type>
-void __acacia_assertEquals(const _type &expected, const _type &actual, const char *file, unsigned int line) {
+template <class _type_expected, class _type_actual>
+void __acacia_assertEquals(const _type_expected &expected, const _type_actual &actual, const char *file, unsigned int line) {
     if (expected != actual) {
         std::stringstream ss;
         ss << "Expected " << expected << " but got " << actual;
@@ -21,8 +21,8 @@ void __acacia_assertEquals(const _type &expected, const _type &actual, const cha
 #define assertEquals(expected, actual) \
 __acacia_assertEquals(expected, actual, __FILE__, __LINE__)
 
-template <class _type>
-void __acacia_assertNotEquals(const _type &expected, const _type &actual, const char *file, unsigned int line) {
+template <class _type_expected, class _type_actual>
+void __acacia_assertNotEquals(const _type_expected &expected, const _type_actual &actual, const char *file, unsigned int line) {
     if (expected == actual) {
         std::stringstream ss;
         ss << "Expected " << expected << " to not equal " << actual;

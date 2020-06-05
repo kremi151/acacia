@@ -9,8 +9,8 @@
 #include <exceptions/assertion_exception.h>
 #include <sstream>
 
-template <class _type>
-void __acacia_assertBiggerThan(const _type &biggest, const _type &smallest, const char *file, unsigned int line) {
+template <class _type_biggest, class _type_smallest>
+void __acacia_assertBiggerThan(const _type_biggest &biggest, const _type_smallest &smallest, const char *file, unsigned int line) {
     if (smallest > biggest) {
         std::stringstream ss;
         ss << "Expected " << biggest << " to be bigger than " << smallest << ", but was smaller";
@@ -25,8 +25,8 @@ void __acacia_assertBiggerThan(const _type &biggest, const _type &smallest, cons
 #define assertBiggerThan(biggest, smallest) \
 __acacia_assertBiggerThan(biggest, smallest, __FILE__, __LINE__)
 
-template <class _type>
-void __acacia_assertSmallerThan(const _type &smallest, const _type &biggest, const char *file, unsigned int line) {
+template <class _type_smallest, class _type_biggest>
+void __acacia_assertSmallerThan(const _type_smallest &smallest, const _type_biggest &biggest, const char *file, unsigned int line) {
     if (smallest > biggest) {
         std::stringstream ss;
         ss << "Expected " << smallest << " to be smaller than " << biggest << ", but was bigger";
@@ -41,8 +41,8 @@ void __acacia_assertSmallerThan(const _type &smallest, const _type &biggest, con
 #define assertSmallerThan(smallest, biggest) \
 __acacia_assertSmallerThan(smallest, biggest, __FILE__, __LINE__)
 
-template <class _type>
-void __acacia_assertBiggerOrEqualTo(const _type &biggest, const _type &smallest, const char *file, unsigned int line) {
+template <class _type_biggest, class _type_smallest>
+void __acacia_assertBiggerOrEqualTo(const _type_biggest &biggest, const _type_smallest &smallest, const char *file, unsigned int line) {
     if (smallest > biggest) {
         std::stringstream ss;
         ss << "Expected " << biggest << " to be bigger than " << smallest << ", but was smaller";
@@ -53,8 +53,8 @@ void __acacia_assertBiggerOrEqualTo(const _type &biggest, const _type &smallest,
 #define assertBiggerOrEqualTo(biggest, smallest) \
 __acacia_assertBiggerOrEqualTo(biggest, smallest, __FILE__, __LINE__)
 
-template <class _type>
-void __acacia_assertSmallerOrEqualTo(const _type &smallest, const _type &biggest, const char *file, unsigned int line) {
+template <class _type_smallest, class _type_biggest>
+void __acacia_assertSmallerOrEqualTo(const _type_smallest &smallest, const _type_biggest &biggest, const char *file, unsigned int line) {
     if (smallest > biggest) {
         std::stringstream ss;
         ss << "Expected " << smallest << " to be smaller than " << biggest << ", but was bigger";
