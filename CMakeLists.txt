@@ -8,6 +8,9 @@ set(SOURCES
         source/exceptions/assertion_exception.cpp
         source/report/report.cpp
         source/report/junit.cpp
+        source/io/stream_capture.cpp
+        source/io/teebuf.cpp
+        source/io/teestream.cpp
         )
 
 set(HEADERS
@@ -19,6 +22,9 @@ set(HEADERS
         source/assertions/compare_assertions.h
         source/report/report.h
         source/report/junit.h
+        source/io/stream_capture.h
+        source/io/teebuf.h
+        source/io/teestream.h
         )
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DFB_DEBUG")

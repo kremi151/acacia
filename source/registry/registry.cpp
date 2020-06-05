@@ -7,6 +7,7 @@
 #include <iostream>
 #include <exception>
 #include <exceptions/assertion_exception.h>
+#include <io/stream_capture.h>
 
 using namespace acacia;
 
@@ -40,28 +41,30 @@ Report Registry::runTests() {
         testCount++;
         auto &test = *i;
         currentTestFromList = &test;
+        StreamCapture capStdout(std::cout);
+        StreamCapture capStderr(std::cerr);
         try {
             test.testPtr();
-            report.addResult(test.fileName, test.testName, true, "", 0, "");
+            report.addResult(test.fileName, test.testName, true, "", 0, capStdout.str(), capStderr.str());
             successCount++;
         } catch (const AssertionException &ex) {
             std::string assertionMessage = std::string("Assertion error: ") + ex.what();
             std::cerr << "Test " << test.testName << " failed:" << std::endl;
             std::cerr << "   Assertion error: " << ex.what() << std::endl;
             std::cerr << "   Error happened in " << ex.getFileName() << ":" << ex.getLine() << std::endl;
-            report.addResult(test.fileName, test.testName, false, std::string("Assertion error: ") + ex.what(), ex.getLine(), "");
+            report.addResult(test.fileName, test.testName, false, std::string("Assertion error: ") + ex.what(), ex.getLine(), capStdout.str(), capStderr.str());
             errorCount++;
         } catch (const std::exception &ex) {
             std::cerr << "Test " << test.testName << " failed:" << std::endl;
             std::cerr << "   Unexpected exception: " << ex.what() << std::endl;
             std::cerr << "   Error happened in " << test.fileName << ", unknown line" << std::endl;
-            report.addResult(test.fileName, test.testName, false, std::string("Unexpected exception: ") + ex.what(), 0, "");
+            report.addResult(test.fileName, test.testName, false, std::string("Unexpected exception: ") + ex.what(), 0, capStdout.str(), capStderr.str());
             errorCount++;
         } catch (...) {
             std::cerr << "Test " << test.testName << " failed:" << std::endl;
             std::cerr << "   Unexpected exception, no further information available" << std::endl;
             std::cerr << "   Error happened in " << test.fileName << ", unknown line" << std::endl;
-            report.addResult(test.fileName, test.testName, false, "Unexpected exception, no further information available", 0, "");
+            report.addResult(test.fileName, test.testName, false, "Unexpected exception, no further information available", 0, capStdout.str(), capStderr.str());
             errorCount++;
         }
         currentTestFromList = nullptr;
