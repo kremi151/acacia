@@ -7,5 +7,6 @@
 
 #include <assertions/equality_assertions.h>
 #include <assertions/compare_assertions.h>
+#include <assertions/manual_assertions.h>
 
 #endif //ACACIA_ASSERTIONS_H

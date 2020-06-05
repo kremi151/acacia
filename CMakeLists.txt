@@ -20,6 +20,7 @@ set(HEADERS
         source/assertions/assertions.h
         source/assertions/equality_assertions.h
         source/assertions/compare_assertions.h
+        source/assertions/manual_assertions.h
         source/report/report.h
         source/report/junit.h
         source/io/stream_capture.h
