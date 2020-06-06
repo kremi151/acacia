@@ -10,7 +10,7 @@ AssertionException::AssertionException(const char *fileName, std::string testNam
                                        std::string message): std::exception(), fileName(fileName), testName(std::move(testName)), line(line), message(std::move(message)) {
 }
 
-const char * AssertionException::what() const {
+const char * AssertionException::what() const noexcept {
     return message.c_str();
 }
 
