@@ -94,5 +94,5 @@ If it does not contain the given `text` so far, the test will fail.
 Looks up the current error output for the current test. \
 If it does contain the given `text`, the test will fail.
 
-* fail(message) \
+* failure(message) \
 Lets the current test fail immediately with a given `message`.
