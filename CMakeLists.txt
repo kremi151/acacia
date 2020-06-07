@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(SOURCES
         source/registry/registry.cpp
         source/exceptions/assertion_exception.cpp
+        source/assertions/output_assertions.cpp
         source/report/report.cpp
         source/report/junit.cpp
         source/io/stream_capture.cpp
@@ -21,6 +22,7 @@ set(HEADERS
         source/assertions/equality_assertions.h
         source/assertions/compare_assertions.h
         source/assertions/manual_assertions.h
+        source/assertions/output_assertions.h
         source/report/report.h
         source/report/junit.h
         source/io/stream_capture.h

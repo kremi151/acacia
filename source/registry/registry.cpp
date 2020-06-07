@@ -7,7 +7,6 @@
 #include <iostream>
 #include <exception>
 #include <exceptions/assertion_exception.h>
-#include <io/stream_capture.h>
 
 using namespace acacia;
 
@@ -86,6 +85,22 @@ const Test & Registry::currentTest() {
         return __Acacia__nullTest;
     } else {
         return *currentTestFromList;
+    }
+}
+
+std::string Registry::getCurrentStdOut() {
+    if (currentStdOut == nullptr) {
+        return "";
+    } else {
+        return currentStdOut->str();
+    }
+}
+
+std::string Registry::getCurrentStdErr() {
+    if (currentStdErr == nullptr) {
+        return "";
+    } else {
+        return currentStdErr->str();
     }
 }
 

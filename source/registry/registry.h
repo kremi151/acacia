@@ -8,6 +8,7 @@
 #include <vector>
 #include <string>
 #include <report/report.h>
+#include <io/stream_capture.h>
 
 namespace acacia {
 
@@ -23,10 +24,13 @@ namespace acacia {
 
         std::vector<Test> tests;
         Test *currentTestFromList;
+        StreamCapture *currentStdOut, *currentStdErr;
     public:
         void registerTest(const char *fileName, const char *testName, void (*testPtr)());
         Report runTests();
         const Test &currentTest();
+        std::string getCurrentStdOut();
+        std::string getCurrentStdErr();
 
         static Registry &instance();
     };
