@@ -42,6 +42,8 @@ Report Registry::runTests() {
         currentTestFromList = &test;
         StreamCapture capStdout(std::cout);
         StreamCapture capStderr(std::cerr);
+        currentStdOut = &capStdout;
+        currentStdErr = &capStderr;
         try {
             test.testPtr();
             report.addResult(test.fileName, test.testName, true, "", 0, capStdout.str(), capStderr.str());
@@ -67,6 +69,8 @@ Report Registry::runTests() {
             errorCount++;
         }
         currentTestFromList = nullptr;
+        currentStdOut = nullptr;
+        currentStdErr = nullptr;
     }
 
     report.setCounts(testCount, successCount, errorCount);
