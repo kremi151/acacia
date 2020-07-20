@@ -6,8 +6,9 @@
 
 using namespace acacia;
 
-TestResult::TestResult(std::string testName, bool success, std::string assertion, unsigned int errorLine, std::string output, std::string errorOutput): testName(std::move(testName)),
-    success(success), assertion(std::move(assertion)), errorLine(errorLine), output(std::move(output)), errorOutput(std::move(errorOutput)) {
+TestResult::TestResult(std::string testName, bool success, std::string assertion, unsigned int errorLine, std::string output, std::string errorOutput):
+    testName(std::move(testName)), success(success), assertion(std::move(assertion)), errorLine(errorLine),
+    output(std::move(output)), errorOutput(std::move(errorOutput)) {
 }
 
 const std::string &TestResult::getTestName() const {
@@ -35,6 +36,14 @@ bool TestResult::isSuccess() const {
 }
 
 Report::Report(): testCount(0), successCount(0), errorCount(0) {
+}
+
+Report & Report::operator+=(const Report &other) {
+    results.insert(other.results.begin(), other.results.end());
+    testCount += other.testCount;
+    successCount += other.successCount;
+    errorCount += other.errorCount;
+    return *this;
 }
 
 void Report::addResult(const std::string &fileName, std::string testName, bool success, std::string assertion, unsigned int errorLine, std::string output, std::string errorOutput) {

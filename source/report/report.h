@@ -52,6 +52,8 @@ namespace acacia {
         std::map<std::string, std::vector<TestResult>>::const_iterator results_begin();
         std::map<std::string, std::vector<TestResult>>::const_iterator results_end();
 
+        Report &operator+=(const Report &other);
+
         explicit operator bool();
 
         void addResult(const std::string &fileName, std::string testName, bool success, std::string assertion, unsigned int errorLine, std::string output, std::string errorOutput);
