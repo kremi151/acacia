@@ -7,6 +7,7 @@
 #include <iostream>
 #include <exception>
 #include <exceptions/assertion_exception.h>
+#include <algorithm>
 
 using namespace acacia;
 
@@ -25,10 +26,23 @@ void Registry::registerTest(const char *fileName, const char *testName, void (*t
     test.testPtr = testPtr;
     test.testName = testName;
     test.fileName = fileName;
-    tests.push_back(test);
+    registeredTests.push_back(test);
 }
 
 Report Registry::runTests() {
+    std::vector<Test> tests(registeredTests);
+    return runSpecificTests(tests);
+}
+
+Report Registry::runTestsOfFile(const std::string &fileName) {
+    std::vector<Test> tests;
+    std::copy_if(registeredTests.begin(), registeredTests.end(), std::back_inserter(tests), [fileName](Test &t) {
+        return t.fileName == fileName;
+    });
+    return runSpecificTests(tests);
+}
+
+Report Registry::runSpecificTests(std::vector<Test> &tests) {
     size_t testCount = 0;
     size_t successCount = 0;
     size_t errorCount = 0;

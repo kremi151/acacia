@@ -18,4 +18,7 @@ void __Acacia__Test__##name()
 #define runAcaciaTests() \
 acacia::Registry::instance().runTests()
 
+#define runAcaciaFileTests() \
+acacia::Registry::instance().runTestsOfFile(__FILE__)
+
 #endif //ACACIA_ACACIA_H

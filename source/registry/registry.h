@@ -22,12 +22,15 @@ namespace acacia {
     private:
         Registry();
 
-        std::vector<Test> tests;
+        std::vector<Test> registeredTests;
         Test *currentTestFromList;
         StreamCapture *currentStdOut, *currentStdErr;
+
+        Report runSpecificTests(std::vector<Test> &tests);
     public:
         void registerTest(const char *fileName, const char *testName, void (*testPtr)());
         Report runTests();
+        Report runTestsOfFile(const std::string &fileName);
         const Test &currentTest();
         std::string getCurrentStdOut();
         std::string getCurrentStdErr();
