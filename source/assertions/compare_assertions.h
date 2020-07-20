@@ -5,7 +5,7 @@
 #ifndef ACACIA_COMPARE_ASSERTIONS_H
 #define ACACIA_COMPARE_ASSERTIONS_H
 
-#include <acacia.h>
+#include <registry/registry.h>
 #include <exceptions/assertion_exception.h>
 #include <sstream>
 
