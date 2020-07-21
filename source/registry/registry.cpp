@@ -8,6 +8,8 @@
 #include <exception>
 #include <exceptions/assertion_exception.h>
 #include <algorithm>
+#include <chrono>
+#include <iomanip>
 
 using namespace acacia;
 
@@ -31,10 +33,12 @@ void Registry::registerTest(const char *fileName, const char *testName, void (*t
 
 Report Registry::runTests() {
     std::vector<Test> tests(registeredTests);
+    std::cout << "Start executing tests all tests" << std::endl;
     return runSpecificTests(tests);
 }
 
 Report Registry::runTestsOfFile(const std::string &fileName) {
+    std::cout << "Start executing tests of " << fileName << std::endl;
     std::vector<Test> tests;
     std::copy_if(registeredTests.begin(), registeredTests.end(), std::back_inserter(tests), [fileName](Test &t) {
         return t.fileName == fileName;
@@ -43,6 +47,8 @@ Report Registry::runTestsOfFile(const std::string &fileName) {
 }
 
 Report Registry::runSpecificTests(std::vector<Test> &tests) {
+    std::chrono::steady_clock::time_point chronoBegin = std::chrono::steady_clock::now();
+
     size_t testCount = 0;
     size_t successCount = 0;
     size_t errorCount = 0;
@@ -87,12 +93,32 @@ Report Registry::runSpecificTests(std::vector<Test> &tests) {
         currentStdErr = nullptr;
     }
 
+    std::chrono::steady_clock::time_point chronoEnd = std::chrono::steady_clock::now();
+
     report.setCounts(testCount, successCount, errorCount);
 
     if (errorCount > 0) {
         std::cout << errorCount << " out of " << testCount << " tests have failed" << std::endl;
     } else {
         std::cout << "All " << testCount << " tests have completed successfully!" << std::endl;
+    }
+
+    long long ms = std::chrono::duration_cast<std::chrono::milliseconds>(chronoEnd - chronoBegin).count();
+    std::cout << "Execution time: ";
+    if (ms >= 3600000) {
+        auto f = ((float) ms) / 60000.f;
+        std::cout << std::setprecision(3) << f;
+        std::cout << " hr(s)" << std::endl;
+    } else if (ms >= 60000) {
+        auto f = ((float) ms) / 60000.f;
+        std::cout << std::setprecision(3) << f;
+        std::cout << " min(s)" << std::endl;
+    } else if (ms >= 1000) {
+        auto f = ((float) ms) / 1000.f;
+        std::cout << std::setprecision(3) << f;
+        std::cout << " s" << std::endl;
+    } else {
+        std::cout << ms << " ms" << std::endl;
     }
 
     return report;
