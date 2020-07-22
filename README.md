@@ -1,4 +1,6 @@
 # acacia
+![acacia CI](https://github.com/kremi151/acacia/workflows/acacia%20CI/badge.svg)
+
 A small and lightweight C++ testing framework
 
 ## Setup
