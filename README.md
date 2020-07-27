@@ -98,3 +98,23 @@ If it does contain the given `text`, the test will fail.
 
 * testFailure(message) \
 Lets the current test fail immediately with a given `message`.
+
+### Generate test report
+
+Acacia provides the following APIs for generating test reports in specific formats:
+
+#### Acacia format (JSON)
+
+```
+auto report = runAcaciaTests();
+std::ofstream reportFile(std::filesystem::path("test-report.txt"));
+acacia::generateAcaciaReport(result, reportFile);
+```
+
+#### JUnit format (XML)
+
+```
+auto report = runAcaciaTests();
+std::ofstream reportFile(std::filesystem::path("test-report.xml"));
+acacia::generateJUnitReport(result, reportFile);
+```
