@@ -9,6 +9,7 @@
 #include <assertions/assertions.h>
 #include <report/report.h>
 #include <report/junit.h>
+#include <report/acacia_report.h>
 
 #define TEST(name) \
 void __Acacia__Test__##name(); \
