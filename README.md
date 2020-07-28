@@ -107,7 +107,7 @@ Acacia provides the following APIs for generating test reports in specific forma
 
 ```
 auto report = runAcaciaTests();
-std::ofstream reportFile(std::filesystem::path("test-report.txt"));
+std::ofstream reportFile("test-report.txt");
 acacia::generateAcaciaReport(result, reportFile);
 ```
 
@@ -115,6 +115,6 @@ acacia::generateAcaciaReport(result, reportFile);
 
 ```
 auto report = runAcaciaTests();
-std::ofstream reportFile(std::filesystem::path("test-report.xml"));
+std::ofstream reportFile("test-report.xml");
 acacia::generateJUnitReport(result, reportFile);
 ```
