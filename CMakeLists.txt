@@ -14,6 +14,7 @@ set(SOURCES
         source/io/stream_capture.cpp
         source/io/teebuf.cpp
         source/io/teestream.cpp
+        source/util/json_serialization.cpp
         )
 
 set(HEADERS
@@ -31,6 +32,7 @@ set(HEADERS
         source/io/stream_capture.h
         source/io/teebuf.h
         source/io/teestream.h
+        source/util/json_serialization.h
         )
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DFB_DEBUG")

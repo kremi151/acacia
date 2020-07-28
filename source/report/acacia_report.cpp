@@ -5,7 +5,7 @@
 #include "acacia_report.h"
 
 #include <sstream>
-#include <iomanip>
+#include <util/json_serialization.h>
 
 void acacia::generateAcaciaReport(acacia::Report &report, std::ofstream &file) {
     file << R"({"version":1,"tests":{)";
@@ -27,11 +27,12 @@ void acacia::generateAcaciaReport(acacia::Report &report, std::ofstream &file) {
             } else {
                 file << ",";
             }
-            file << R"({"name":)" << std::quoted(result.getTestName()) << R"(,"skipped":false,)";
+            file << R"({"name":")" << util::escapeJsonString(result.getTestName()) << R"(","skipped":false,)";
             if (result.getErrorLine() > 0) {
-                file << R"("error":{"assertion":)" << std::quoted(result.getAssertion()) << R"(,"line":)" << result.getErrorLine() << "},";
+                file << R"("error":{"assertion":")" << util::escapeJsonString(result.getAssertion()) << R"(","line":)" << result.getErrorLine() << "},";
             }
-            file << R"("stdout":)" << std::quoted(result.getOutput()) << R"(,"stderr":)" << std::quoted(result.getErrorOutput()) << "}";
+            file << R"("stdout":")" << util::escapeJsonString(result.getOutput())
+                 << R"(","stderr":")" << util::escapeJsonString(result.getErrorOutput()) << "\"}";
         }
 
         file << "]";
