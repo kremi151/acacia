@@ -80,6 +80,14 @@ If `smallest` is bigger than `biggest`, the test will fail.
 Compares `smallest` with `biggest`. \
 If `biggest` is smaller than `smallest`, the test will fail.
 
+* assertTrue(bool) \
+Asserts whether the given boolean value is `true`. \
+If it is `false`, the test will fail.
+
+* assertFalse(bool) \
+Asserts whether the given boolean value is `false`. \
+If it is `true`, the test will fail.
+
 * assertStandardOutputHas(text) \
 Looks up the current standard output for the current test. \
 If it does not contain the given `text` so far, the test will fail.

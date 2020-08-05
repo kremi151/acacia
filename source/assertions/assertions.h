@@ -9,5 +9,6 @@
 #include <assertions/compare_assertions.h>
 #include <assertions/manual_assertions.h>
 #include <assertions/output_assertions.h>
+#include <assertions/boolean_assertions.h>
 
 #endif //ACACIA_ASSERTIONS_H

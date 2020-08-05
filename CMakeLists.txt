@@ -8,6 +8,7 @@ set(SOURCES
         source/exceptions/assertion_exception.cpp
         source/assertions/manual_assertions.cpp
         source/assertions/output_assertions.cpp
+        source/assertions/boolean_assertions.cpp
         source/report/report.cpp
         source/report/acacia_report.cpp
         source/report/junit.cpp
@@ -26,6 +27,7 @@ set(HEADERS
         source/assertions/compare_assertions.h
         source/assertions/manual_assertions.h
         source/assertions/output_assertions.h
+        source/assertions/boolean_assertions.h
         source/report/report.h
         source/report/acacia_report.h
         source/report/junit.h
