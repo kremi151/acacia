@@ -13,7 +13,7 @@
 
 #define TEST(name) \
 void __Acacia__Test__##name(); \
-acacia::Registration __Acacia__Registration_##name(__FILE__, #name, __Acacia__Test__##name); \
+acacia::TestRegistration __Acacia__Registration_##name(__FILE__, #name, __Acacia__Test__##name); \
 void __Acacia__Test__##name()
 
 #define runAcaciaTests() \

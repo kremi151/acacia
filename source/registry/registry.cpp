@@ -7,15 +7,16 @@
 #include <iostream>
 #include <exception>
 #include <exceptions/assertion_exception.h>
-#include <algorithm>
 #include <chrono>
 #include <iomanip>
 
 using namespace acacia;
 
-Test __Acacia__nullTest = {nullptr, "", "" };
+Entry __Acacia__nullTest = {nullptr, "", ""};
 
-Registry::Registry(): currentTestFromList(nullptr) {
+Registry::Registry()
+    : currentEntryFromList(nullptr)
+{
 }
 
 Registry & Registry::instance() {
@@ -24,73 +25,125 @@ Registry & Registry::instance() {
 }
 
 void Registry::registerTest(const char *fileName, const char *testName, void (*testPtr)()) {
-    Test test;
-    test.testPtr = testPtr;
-    test.testName = testName;
-    test.fileName = fileName;
-    registeredTests.push_back(test);
+    auto &fileEntry = fileEntries[fileName];
+    fileEntry.tests.push_back({
+        testPtr,
+        testName,
+        fileName
+    });
 }
 
 Report Registry::runTests() {
-    std::vector<Test> tests(registeredTests);
+    std::vector<FileEntry> tests;
+    for (auto & fileEntry : fileEntries) {
+        tests.push_back(fileEntry.second);
+    }
     std::cout << "Start executing tests all tests" << std::endl;
     return runSpecificTests(tests);
 }
 
 Report Registry::runTestsOfFile(const std::string &fileName) {
     std::cout << "Start executing tests of " << fileName << std::endl;
-    std::vector<Test> tests;
-    std::copy_if(registeredTests.begin(), registeredTests.end(), std::back_inserter(tests), [fileName](Test &t) {
-        return t.fileName == fileName;
-    });
+    std::vector<FileEntry> tests;
+    tests.push_back(fileEntries[fileName]);
     return runSpecificTests(tests);
 }
 
-Report Registry::runSpecificTests(std::vector<Test> &tests) {
+bool Registry::runTest(const std::string &fileName, const std::string &testName, void (*funcPtr)(), Report &outReport) {
+    StreamCapture capStdout(std::cout);
+    StreamCapture capStderr(std::cerr);
+    currentStdOut = &capStdout;
+    currentStdErr = &capStderr;
+    bool result;
+    try {
+        funcPtr();
+        outReport.addResult(fileName, testName, true, "", 0, capStdout.str(), capStderr.str());
+        result = true;
+    } catch (const AssertionException &ex) {
+        std::string assertionMessage = std::string("Assertion error: ") + ex.what();
+        std::cerr << "Test " << testName << " failed:" << std::endl;
+        std::cerr << "   Assertion error: " << ex.what() << std::endl;
+        std::cerr << "   Error happened in " << ex.getFileName() << ":" << ex.getLine() << std::endl;
+        outReport.addResult(fileName, testName, false, std::string("Assertion error: ") + ex.what(), ex.getLine(), capStdout.str(), capStderr.str());
+        result = false;
+    } catch (const std::exception &ex) {
+        std::cerr << "Test " << testName << " failed:" << std::endl;
+        std::cerr << "   Unexpected exception: " << ex.what() << std::endl;
+        std::cerr << "   Error happened in " << fileName << ", unknown line" << std::endl;
+        outReport.addResult(fileName, testName, false, std::string("Unexpected exception: ") + ex.what(), 0, capStdout.str(), capStderr.str());
+        result = false;
+    } catch (...) {
+        std::cerr << "Test " << testName << " failed:" << std::endl;
+        std::cerr << "   Unexpected exception, no further information available" << std::endl;
+        std::cerr << "   Error happened in " << fileName << ", unknown line" << std::endl;
+        outReport.addResult(fileName, testName, false, "Unexpected exception, no further information available", 0, capStdout.str(), capStderr.str());
+        result = false;
+    }
+    currentEntryFromList = nullptr;
+    currentStdOut = nullptr;
+    currentStdErr = nullptr;
+    return result;
+}
+
+Report Registry::runSpecificTests(std::vector<FileEntry> &files) {
     std::chrono::steady_clock::time_point chronoBegin = std::chrono::steady_clock::now();
 
+    // TODO: Use a map test->state where state = SUCCESS|FAILURE|PENDING
     size_t testCount = 0;
     size_t successCount = 0;
     size_t errorCount = 0;
 
     Report report;
 
-    auto end = tests.end();
-    for (auto i = tests.begin() ; i != end ; i++) {
-        testCount++;
-        auto &test = *i;
-        currentTestFromList = &test;
-        StreamCapture capStdout(std::cout);
-        StreamCapture capStderr(std::cerr);
-        currentStdOut = &capStdout;
-        currentStdErr = &capStderr;
-        try {
-            test.testPtr();
-            report.addResult(test.fileName, test.testName, true, "", 0, capStdout.str(), capStderr.str());
-            successCount++;
-        } catch (const AssertionException &ex) {
-            std::string assertionMessage = std::string("Assertion error: ") + ex.what();
-            std::cerr << "Test " << test.testName << " failed:" << std::endl;
-            std::cerr << "   Assertion error: " << ex.what() << std::endl;
-            std::cerr << "   Error happened in " << ex.getFileName() << ":" << ex.getLine() << std::endl;
-            report.addResult(test.fileName, test.testName, false, std::string("Assertion error: ") + ex.what(), ex.getLine(), capStdout.str(), capStderr.str());
-            errorCount++;
-        } catch (const std::exception &ex) {
-            std::cerr << "Test " << test.testName << " failed:" << std::endl;
-            std::cerr << "   Unexpected exception: " << ex.what() << std::endl;
-            std::cerr << "   Error happened in " << test.fileName << ", unknown line" << std::endl;
-            report.addResult(test.fileName, test.testName, false, std::string("Unexpected exception: ") + ex.what(), 0, capStdout.str(), capStderr.str());
-            errorCount++;
-        } catch (...) {
-            std::cerr << "Test " << test.testName << " failed:" << std::endl;
-            std::cerr << "   Unexpected exception, no further information available" << std::endl;
-            std::cerr << "   Error happened in " << test.fileName << ", unknown line" << std::endl;
-            report.addResult(test.fileName, test.testName, false, "Unexpected exception, no further information available", 0, capStdout.str(), capStderr.str());
-            errorCount++;
+    auto end = files.end();
+    for (auto i = files.begin() ; i != end ; i++) {
+        auto &fileEntry = *i;
+
+        for (const auto &test : fileEntry.beforeFile) {
+            currentEntryFromList = &test;
+            if (!runTest(test.fileName, "Before file", test.funcPtr, report)) {
+                errorCount++;
+                continue;
+            }
         }
-        currentTestFromList = nullptr;
-        currentStdOut = nullptr;
-        currentStdErr = nullptr;
+
+        for (const auto &test : fileEntry.tests) {
+            bool canContinue = true;
+            for (const auto &before : fileEntry.before) {
+                currentEntryFromList = &test;
+                if (!runTest(test.fileName, test.testName, before.funcPtr, report)) {
+                    errorCount++;
+                    canContinue = false;
+                    break;
+                }
+            }
+            if (!canContinue) {
+                break;
+            }
+            testCount++;
+            currentEntryFromList = &test;
+            if (runTest(test.fileName, test.testName, test.funcPtr, report)) {
+                successCount++;
+            } else {
+                errorCount++;
+            }
+            for (const auto &after : fileEntry.after) {
+                currentEntryFromList = &test;
+                if (!runTest(test.fileName, test.testName, after.funcPtr, report)) {
+                    errorCount++;
+                    break;
+                }
+            }
+        }
+
+        for (const auto &test : fileEntry.afterFile) {
+            currentEntryFromList = &test;
+            if (!runTest(test.fileName, "After file", test.funcPtr, report)) {
+                errorCount++;
+                continue;
+            }
+        }
+
     }
 
     std::chrono::steady_clock::time_point chronoEnd = std::chrono::steady_clock::now();
@@ -124,11 +177,11 @@ Report Registry::runSpecificTests(std::vector<Test> &tests) {
     return report;
 }
 
-const Test & Registry::currentTest() {
-    if (currentTestFromList == nullptr) {
+const Entry & Registry::currentTest() {
+    if (currentEntryFromList == nullptr) {
         return __Acacia__nullTest;
     } else {
-        return *currentTestFromList;
+        return *currentEntryFromList;
     }
 }
 
@@ -148,6 +201,10 @@ std::string Registry::getCurrentStdErr() {
     }
 }
 
-Registration::Registration(const char *fileName, const char *testName, void (*testPtr)()) noexcept {
+TestRegistration::TestRegistration(const char *fileName, const char *testName, void (*testPtr)()) noexcept {
     Registry::instance().registerTest(fileName, testName, testPtr);
+}
+
+BeforeRegistration::BeforeRegistration(const char *fileName, void (*testPtr)()) noexcept {
+
 }

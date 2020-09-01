@@ -6,41 +6,65 @@
 #define ACACIA_REGISTRY_H
 
 #include <vector>
+#include <map>
 #include <string>
 #include <report/report.h>
 #include <io/stream_capture.h>
 
 namespace acacia {
 
+    typedef std::string file_name;
+    typedef std::string test_name;
+
     typedef struct {
-        void (*testPtr)();
-        std::string testName;
-        std::string fileName;
-    } Test;
+        void (*funcPtr)();
+        test_name testName;
+        file_name fileName;
+    } Entry;
+
+    typedef struct {
+        std::vector<Entry> beforeFile;
+        std::vector<Entry> before;
+        std::vector<Entry> tests;
+        std::vector<Entry> after;
+        std::vector<Entry> afterFile;
+    } FileEntry;
 
     class Registry{
     private:
         Registry();
 
-        std::vector<Test> registeredTests;
-        Test *currentTestFromList;
+        std::map<file_name, FileEntry> fileEntries;
+        const Entry *currentEntryFromList;
         StreamCapture *currentStdOut, *currentStdErr;
 
-        Report runSpecificTests(std::vector<Test> &tests);
+        Report runSpecificTests(std::vector<FileEntry> &files);
+        bool runTest(const std::string &fileName, const std::string &testName, void (*funcPtr)(), Report &outReport);
     public:
         void registerTest(const char *fileName, const char *testName, void (*testPtr)());
+        void registerAfter(const char *fileName, void (*funcPtr)());
         Report runTests();
         Report runTestsOfFile(const std::string &fileName);
-        const Test &currentTest();
+        const Entry &currentTest();
         std::string getCurrentStdOut();
         std::string getCurrentStdErr();
 
         static Registry &instance();
     };
 
-    class Registration{
+    class TestRegistration{
     public:
-        Registration(const char *fileName, const char *testName, void (*testPtr)()) noexcept;
+        TestRegistration(const char *fileName, const char *testName, void (*testPtr)()) noexcept;
+    };
+
+    class BeforeRegistration{
+    public:
+        BeforeRegistration(const char *fileName, void (*testPtr)()) noexcept;
+    };
+
+    class AfterRegistration{
+    public:
+        AfterRegistration(const char *fileName, void (*testPtr)()) noexcept;
     };
 
 }
