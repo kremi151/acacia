@@ -31,6 +31,22 @@ void Registry::registerTest(const char *fileName, const char *testName, void (*t
     });
 }
 
+void Registry::registerBefore(const char *fileName, void (*funcPtr)()) {
+    auto &fileEntry = fileEntries[fileName];
+    if (fileEntry.fileName.empty()) {
+        fileEntry.fileName = fileName;
+    }
+    fileEntry.before.push_back(funcPtr);
+}
+
+void Registry::registerAfter(const char *fileName, void (*funcPtr)()) {
+    auto &fileEntry = fileEntries[fileName];
+    if (fileEntry.fileName.empty()) {
+        fileEntry.fileName = fileName;
+    }
+    fileEntry.after.push_back(funcPtr);
+}
+
 Report Registry::runTests() {
     std::vector<FileEntry> tests;
     for (auto & fileEntry : fileEntries) {
@@ -203,5 +219,9 @@ TestRegistration::TestRegistration(const char *fileName, const char *testName, v
 }
 
 BeforeRegistration::BeforeRegistration(const char *fileName, void (*testPtr)()) noexcept {
+    Registry::instance().registerBefore(fileName, testPtr);
+}
 
+AfterRegistration::AfterRegistration(const char *fileName, void (*testPtr)()) noexcept {
+    Registry::instance().registerAfter(fileName, testPtr);
 }
