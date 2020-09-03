@@ -14,11 +14,11 @@ void __acacia_assertBiggerThan(const _type_biggest &biggest, const _type_smalles
     if (smallest > biggest) {
         std::stringstream ss;
         ss << "Expected " << biggest << " to be bigger than " << smallest << ", but was smaller";
-        throw acacia::AssertionException(file, acacia::Registry::instance().currentTest().testName, line, ss.str());
+        throw acacia::AssertionException(file, acacia::Registry::instance().currentTestName(), line, ss.str());
     } else if (smallest == biggest) {
         std::stringstream ss;
         ss << "Expected " << biggest << " to be bigger than " << smallest << ", but was equal";
-        throw acacia::AssertionException(file, acacia::Registry::instance().currentTest().testName, line, ss.str());
+        throw acacia::AssertionException(file, acacia::Registry::instance().currentTestName(), line, ss.str());
     }
 }
 
@@ -30,11 +30,11 @@ void __acacia_assertSmallerThan(const _type_smallest &smallest, const _type_bigg
     if (smallest > biggest) {
         std::stringstream ss;
         ss << "Expected " << smallest << " to be smaller than " << biggest << ", but was bigger";
-        throw acacia::AssertionException(file, acacia::Registry::instance().currentTest().testName, line, ss.str());
+        throw acacia::AssertionException(file, acacia::Registry::instance().currentTestName(), line, ss.str());
     } else if (smallest == biggest) {
         std::stringstream ss;
         ss << "Expected " << smallest << " to be smaller than " << biggest << ", but was equal";
-        throw acacia::AssertionException(file, acacia::Registry::instance().currentTest().testName, line, ss.str());
+        throw acacia::AssertionException(file, acacia::Registry::instance().currentTestName(), line, ss.str());
     }
 }
 
@@ -46,7 +46,7 @@ void __acacia_assertBiggerOrEqualTo(const _type_biggest &biggest, const _type_sm
     if (smallest > biggest) {
         std::stringstream ss;
         ss << "Expected " << biggest << " to be bigger than " << smallest << ", but was smaller";
-        throw acacia::AssertionException(file, acacia::Registry::instance().currentTest().testName, line, ss.str());
+        throw acacia::AssertionException(file, acacia::Registry::instance().currentTestName(), line, ss.str());
     }
 }
 
@@ -58,7 +58,7 @@ void __acacia_assertSmallerOrEqualTo(const _type_smallest &smallest, const _type
     if (smallest > biggest) {
         std::stringstream ss;
         ss << "Expected " << smallest << " to be smaller than " << biggest << ", but was bigger";
-        throw acacia::AssertionException(file, acacia::Registry::instance().currentTest().testName, line, ss.str());
+        throw acacia::AssertionException(file, acacia::Registry::instance().currentTestName(), line, ss.str());
     }
 }
 
