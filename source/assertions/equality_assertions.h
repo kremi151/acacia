@@ -14,7 +14,7 @@ void __acacia_assertEquals(const _type_expected &expected, const _type_actual &a
     if (expected != actual) {
         std::stringstream ss;
         ss << "Expected " << expected << " but got " << actual;
-        throw acacia::AssertionException(file, acacia::Registry::instance().currentTest().testName, line, ss.str());
+        throw acacia::AssertionException(file, acacia::Registry::instance().currentTestName(), line, ss.str());
     }
 }
 
@@ -26,7 +26,7 @@ void __acacia_assertNotEquals(const _type_expected &expected, const _type_actual
     if (expected == actual) {
         std::stringstream ss;
         ss << "Expected " << expected << " to not equal " << actual;
-        throw acacia::AssertionException(file, acacia::Registry::instance().currentTest().testName, line, ss.str());
+        throw acacia::AssertionException(file, acacia::Registry::instance().currentTestName(), line, ss.str());
     }
 }
 
