@@ -31,20 +31,28 @@ void Registry::registerTest(const char *fileName, const char *testName, void (*t
     });
 }
 
-void Registry::registerBefore(const char *fileName, void (*funcPtr)()) {
+void Registry::registerBefore(bool file, const char *fileName, void (*funcPtr)()) {
     auto &fileEntry = fileEntries[fileName];
     if (fileEntry.fileName.empty()) {
         fileEntry.fileName = fileName;
     }
-    fileEntry.before.push_back(funcPtr);
+    if (file) {
+        fileEntry.beforeFile.push_back(funcPtr);
+    } else {
+        fileEntry.before.push_back(funcPtr);
+    }
 }
 
-void Registry::registerAfter(const char *fileName, void (*funcPtr)()) {
+void Registry::registerAfter(bool file, const char *fileName, void (*funcPtr)()) {
     auto &fileEntry = fileEntries[fileName];
     if (fileEntry.fileName.empty()) {
         fileEntry.fileName = fileName;
     }
-    fileEntry.after.push_back(funcPtr);
+    if (file) {
+        fileEntry.afterFile.push_back(funcPtr);
+    } else {
+        fileEntry.after.push_back(funcPtr);
+    }
 }
 
 Report Registry::runTests() {
@@ -218,10 +226,10 @@ TestRegistration::TestRegistration(const char *fileName, const char *testName, v
     Registry::instance().registerTest(fileName, testName, testPtr);
 }
 
-BeforeRegistration::BeforeRegistration(const char *fileName, void (*testPtr)()) noexcept {
-    Registry::instance().registerBefore(fileName, testPtr);
+BeforeRegistration::BeforeRegistration(bool file, const char *fileName, void (*testPtr)()) noexcept {
+    Registry::instance().registerBefore(file, fileName, testPtr);
 }
 
-AfterRegistration::AfterRegistration(const char *fileName, void (*testPtr)()) noexcept {
-    Registry::instance().registerAfter(fileName, testPtr);
+AfterRegistration::AfterRegistration(bool file, const char *fileName, void (*testPtr)()) noexcept {
+    Registry::instance().registerAfter(file, fileName, testPtr);
 }

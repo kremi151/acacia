@@ -45,8 +45,8 @@ namespace acacia {
         bool runTest(const std::string &fileName, const std::string &testName, const std::vector<func_ptr> &steps, Report &outReport);
     public:
         void registerTest(const char *fileName, const char *testName, void (*testPtr)());
-        void registerBefore(const char *fileName, void (*funcPtr)());
-        void registerAfter(const char *fileName, void (*funcPtr)());
+        void registerBefore(bool file, const char *fileName, void (*funcPtr)());
+        void registerAfter(bool file, const char *fileName, void (*funcPtr)());
         Report runTests();
         Report runTestsOfFile(const std::string &fileName);
         const std::string &currentTestName();
@@ -63,12 +63,12 @@ namespace acacia {
 
     class BeforeRegistration{
     public:
-        BeforeRegistration(const char *fileName, void (*testPtr)()) noexcept;
+        BeforeRegistration(bool file, const char *fileName, void (*testPtr)()) noexcept;
     };
 
     class AfterRegistration{
     public:
-        AfterRegistration(const char *fileName, void (*testPtr)()) noexcept;
+        AfterRegistration(bool file, const char *fileName, void (*testPtr)()) noexcept;
     };
 
 }
