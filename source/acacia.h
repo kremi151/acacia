@@ -17,14 +17,14 @@ acacia::TestRegistration __Acacia__Registration_##name(__FILE__, #name, __Acacia
 void __Acacia__Test__##name()
 
 #define BEFORE \
-void __Acacia__BeforeTests__##__FILE__#__LINE__##(); \
-acacia::BeforeRegistration __Acacia__BeforeRegistration##__FILE__#__LINE__##(__Acacia__BeforeTests__##__FILE__#__LINE__##); \
-void __Acacia__BeforeTests__##__FILE__#__LINE__##()
+void __Acacia__BeforeTests__##__FILE__##__LINE__##(); \
+acacia::BeforeRegistration __Acacia__BeforeRegistration_##__FILE__##__LINE__##(__FILE__, __Acacia__BeforeTests__##__FILE__##__LINE__##); \
+void __Acacia__BeforeTests__##__FILE__##__LINE__##()
 
 #define AFTER \
-void __Acacia__AfterTests__##__FILE__#__LINE__##(); \
-acacia::AfterRegistration __Acacia__AfterRegistration##__FILE__#__LINE__##(__Acacia__AfterTests__##__FILE__#__LINE__##); \
-void __Acacia__AfterTests__##__FILE__#__LINE__##()
+void __Acacia__AfterTests__##__FILE__##__LINE__##(); \
+acacia::AfterRegistration __Acacia__AfterRegistration##__FILE__##__LINE__##(__FILE__, __Acacia__AfterTests__##__FILE__##__LINE__##); \
+void __Acacia__AfterTests__##__FILE__##__LINE__##()
 
 #define runAcaciaTests() \
 acacia::Registry::instance().runTests()
