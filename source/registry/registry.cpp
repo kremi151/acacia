@@ -12,12 +12,7 @@
 
 using namespace acacia;
 
-Entry __Acacia__nullTest = {nullptr, "", ""};
-
-Registry::Registry()
-    : currentEntryFromList(nullptr)
-{
-}
+Registry::Registry() = default;
 
 Registry & Registry::instance() {
     static Registry registry;
@@ -26,6 +21,9 @@ Registry & Registry::instance() {
 
 void Registry::registerTest(const char *fileName, const char *testName, void (*testPtr)()) {
     auto &fileEntry = fileEntries[fileName];
+    if (fileEntry.fileName.empty()) {
+        fileEntry.fileName = fileName;
+    }
     fileEntry.tests.push_back({
         testPtr,
         testName,
@@ -49,14 +47,16 @@ Report Registry::runTestsOfFile(const std::string &fileName) {
     return runSpecificTests(tests);
 }
 
-bool Registry::runTest(const std::string &fileName, const std::string &testName, void (*funcPtr)(), Report &outReport) {
+bool Registry::runTest(const std::string &fileName, const std::string &testName, const std::vector<func_ptr> &steps, Report &outReport) {
     StreamCapture capStdout(std::cout);
     StreamCapture capStderr(std::cerr);
     currentStdOut = &capStdout;
     currentStdErr = &capStderr;
     bool result;
     try {
-        funcPtr();
+        for (const func_ptr &step : steps) {
+            step();
+        }
         outReport.addResult(fileName, testName, true, "", 0, capStdout.str(), capStderr.str());
         result = true;
     } catch (const AssertionException &ex) {
@@ -79,7 +79,7 @@ bool Registry::runTest(const std::string &fileName, const std::string &testName,
         outReport.addResult(fileName, testName, false, "Unexpected exception, no further information available", 0, capStdout.str(), capStderr.str());
         result = false;
     }
-    currentEntryFromList = nullptr;
+    _currentTestName = "MISSINGNO";
     currentStdOut = nullptr;
     currentStdErr = nullptr;
     return result;
@@ -99,46 +99,47 @@ Report Registry::runSpecificTests(std::vector<FileEntry> &files) {
     for (auto i = files.begin() ; i != end ; i++) {
         auto &fileEntry = *i;
 
-        for (const auto &test : fileEntry.beforeFile) {
-            currentEntryFromList = &test;
-            if (!runTest(test.fileName, "Before file", test.funcPtr, report)) {
+        std::vector<func_ptr> testSteps;
+
+        if (!fileEntry.beforeFile.empty()) {
+            for (const auto &func : fileEntry.beforeFile) {
+                testSteps.push_back(func);
+            }
+            _currentTestName = "<before file>";
+            if (!runTest(fileEntry.fileName, _currentTestName, testSteps, report)) {
                 errorCount++;
+                // TODO: Mark remaining tests as skipped
                 continue;
             }
         }
 
+        testSteps.clear();
+        for (const auto &func : fileEntry.before) {
+            testSteps.push_back(func);
+        }
+        testSteps.push_back(nullptr);
+        for (const auto &func : fileEntry.after) {
+            testSteps.push_back(func);
+        }
+
         for (const auto &test : fileEntry.tests) {
-            bool canContinue = true;
-            for (const auto &before : fileEntry.before) {
-                currentEntryFromList = &test;
-                if (!runTest(test.fileName, test.testName, before.funcPtr, report)) {
-                    errorCount++;
-                    canContinue = false;
-                    break;
-                }
-            }
-            if (!canContinue) {
-                break;
-            }
             testCount++;
-            currentEntryFromList = &test;
-            if (runTest(test.fileName, test.testName, test.funcPtr, report)) {
+            _currentTestName = test.testName;
+            testSteps[fileEntry.before.size()] = test.funcPtr;
+            if (runTest(test.fileName, test.testName, testSteps, report)) {
                 successCount++;
             } else {
                 errorCount++;
             }
-            for (const auto &after : fileEntry.after) {
-                currentEntryFromList = &test;
-                if (!runTest(test.fileName, test.testName, after.funcPtr, report)) {
-                    errorCount++;
-                    break;
-                }
-            }
         }
 
-        for (const auto &test : fileEntry.afterFile) {
-            currentEntryFromList = &test;
-            if (!runTest(test.fileName, "After file", test.funcPtr, report)) {
+        testSteps.clear();
+        if (!fileEntry.afterFile.empty()) {
+            for (const auto &func : fileEntry.afterFile) {
+                testSteps.push_back(func);
+            }
+            _currentTestName = "<after file>";
+            if (!runTest(fileEntry.fileName, _currentTestName, testSteps, report)) {
                 errorCount++;
                 continue;
             }
@@ -177,12 +178,8 @@ Report Registry::runSpecificTests(std::vector<FileEntry> &files) {
     return report;
 }
 
-const Entry & Registry::currentTest() {
-    if (currentEntryFromList == nullptr) {
-        return __Acacia__nullTest;
-    } else {
-        return *currentEntryFromList;
-    }
+const std::string &Registry::currentTestName() {
+    return _currentTestName;
 }
 
 std::string Registry::getCurrentStdOut() {

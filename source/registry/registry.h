@@ -16,6 +16,8 @@ namespace acacia {
     typedef std::string file_name;
     typedef std::string test_name;
 
+    typedef void (*func_ptr)();
+
     typedef struct {
         void (*funcPtr)();
         test_name testName;
@@ -23,11 +25,12 @@ namespace acacia {
     } Entry;
 
     typedef struct {
-        std::vector<Entry> beforeFile;
-        std::vector<Entry> before;
+        std::string fileName;
+        std::vector<func_ptr> beforeFile;
+        std::vector<func_ptr> before;
         std::vector<Entry> tests;
-        std::vector<Entry> after;
-        std::vector<Entry> afterFile;
+        std::vector<func_ptr> after;
+        std::vector<func_ptr> afterFile;
     } FileEntry;
 
     class Registry{
@@ -35,17 +38,17 @@ namespace acacia {
         Registry();
 
         std::map<file_name, FileEntry> fileEntries;
-        const Entry *currentEntryFromList;
+        std::string _currentTestName;
         StreamCapture *currentStdOut, *currentStdErr;
 
         Report runSpecificTests(std::vector<FileEntry> &files);
-        bool runTest(const std::string &fileName, const std::string &testName, void (*funcPtr)(), Report &outReport);
+        bool runTest(const std::string &fileName, const std::string &testName, const std::vector<func_ptr> &steps, Report &outReport);
     public:
         void registerTest(const char *fileName, const char *testName, void (*testPtr)());
         void registerAfter(const char *fileName, void (*funcPtr)());
         Report runTests();
         Report runTestsOfFile(const std::string &fileName);
-        const Entry &currentTest();
+        const std::string &currentTestName();
         std::string getCurrentStdOut();
         std::string getCurrentStdErr();
 
