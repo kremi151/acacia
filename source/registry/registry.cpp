@@ -132,7 +132,10 @@ Report Registry::runSpecificTests(std::vector<FileEntry> &files) {
             _currentTestName = "<before file>";
             if (!runTest(fileEntry.fileName, _currentTestName, testSteps, report)) {
                 errorCount++;
-                // TODO: Mark remaining tests as skipped
+                for (const auto &test : fileEntry.tests) {
+                    report.addResult(fileEntry.fileName, test.testName, false, "Previous error", 0, "", "");
+                    errorCount++;
+                }
                 continue;
             }
         }
