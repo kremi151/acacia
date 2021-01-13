@@ -25,8 +25,8 @@ suites[\"${ACACIA_TEST_SUITE_NAME}\"] = __Acacia__TestSuite_${ACACIA_TEST_SUITE_
         endif()
     endforeach()
 
-    configure_file("${ACACIA_SOURCE_DIR}/source/dynamic/acacia_main.cpp.in" "${CMAKE_BINARY_DIR}/generated/acacia_main.cpp" @ONLY)
-    set(ACACIA_TEST_SOURCES ${ACACIA_TEST_SOURCES} "${CMAKE_BINARY_DIR}/generated/acacia_main.cpp")
+    configure_file("${ACACIA_SOURCE_DIR}/source/dynamic/acacia_run_tests.cpp.in" "${CMAKE_BINARY_DIR}/generated/acacia_run_tests.cpp" @ONLY)
+    set(ACACIA_TEST_SOURCES ${ACACIA_TEST_SOURCES} "${CMAKE_BINARY_DIR}/generated/acacia_run_tests.cpp")
 
     set(ACACIA_TEST_SOURCE_CONTENT "")
 endmacro()
