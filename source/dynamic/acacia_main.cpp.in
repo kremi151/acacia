@@ -1,0 +1,29 @@
+#include <acacia.h>
+
+#include <iostream>
+
+@ACACIA_SUITE_IMPORTS@
+
+void printSuiteResults(const acacia::Report &report, const char *suiteName) {
+    std::cout << "Test results for suite " << suiteName << ":" << std::endl;
+    for (auto it = report.results_begin() ; it != report.results_end() ; it++) {
+        auto &tests = it->second;
+        for (const auto & test : tests) {
+            if (test.isSuccess()) {
+                std::cout << "[PASSED] ";
+            } else {
+                std::cout << "[FAILED] ";
+            }
+            std::cout << test.getTestName() << std::endl;
+        }
+    }
+}
+
+int main() {
+    acacia::Report report;
+    acacia::Report suiteReport;
+
+    @ACACIA_REPORT_EXECUTION_CODE@
+
+    return report ? 0 : 1;
+}

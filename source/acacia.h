@@ -19,7 +19,16 @@ void __Acacia__Test__##name()
 #define runAcaciaTests() \
 acacia::Registry::instance().runTests()
 
-#define runAcaciaFileTests() \
+#define __deprecated_runAcaciaFileTests() \
 acacia::Registry::instance().runTestsOfFile(__FILE__)
+
+#define TEST_SUITE(name) \
+namespace __Acacia__TestSuite_##name { \
+    acacia::StartSuite suite(#name); \
+    acacia::Report runSuite() { \
+        return acacia::Registry::instance().runTestsOfSuite(#name); \
+    } \
+} \
+namespace __Acacia__TestSuite_##name
 
 #endif //ACACIA_ACACIA_H
