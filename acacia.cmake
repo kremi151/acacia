@@ -18,10 +18,8 @@ macro(set_acacia_test_sources)
 
             set(ACACIA_SUITE_IMPORTS "${ACACIA_SUITE_IMPORTS}\n\
 #include \"suite_${ACACIA_TEST_SUITE_NAME}.h\"")
-            set(ACACIA_REPORT_EXECUTION_CODE "${ACACIA_REPORT_EXECUTION_CODE}\n\
-suiteReport = __Acacia__TestSuite_${ACACIA_TEST_SUITE_NAME}::runSuite();\n\
-printSuiteResults(suiteReport, \"${ACACIA_TEST_SUITE_NAME}\");\n\
-report += suiteReport;\n")
+            set(ACACIA_SUITE_MAP_CODE "${ACACIA_SUITE_MAP_CODE}\n\
+suites[\"${ACACIA_TEST_SUITE_NAME}\"] = __Acacia__TestSuite_${ACACIA_TEST_SUITE_NAME}::runSuite;")
         endif()
     endforeach()
 

@@ -1,6 +1,8 @@
 #include <acacia.h>
 
 #include <iostream>
+#include <map>
+#include <cstring>
 
 @ACACIA_SUITE_IMPORTS@
 
@@ -19,11 +21,53 @@ void printSuiteResults(const acacia::Report &report, const char *suiteName) {
     }
 }
 
-int main() {
-    acacia::Report report;
-    acacia::Report suiteReport;
+typedef acacia::Report(*SuiteRunner)();
 
-    @ACACIA_REPORT_EXECUTION_CODE@
+int main(int argc, char **argv) {
+    acacia::Report report;
+
+    std::map<std::string, SuiteRunner> suites;
+    std::map<std::string, SuiteRunner> executableSuites;
+    bool excludeMode = true;
+
+    @ACACIA_SUITE_MAP_CODE@
+
+    executableSuites = suites;
+
+    for (int i = 1 ; i < argc ; i++) {
+        char *arg = argv[i];
+        if (std::strcmp(arg, "-e") == 0) {
+            if (i + 1 >= argc) {
+                std::cerr << "Expected test suite name to exclude with -e option" << std::endl;
+                return 1;
+            }
+            char *exc = argv[++i];
+            executableSuites.erase(exc);
+        } else if (std::strcmp(arg, "-t") == 0) {
+            if (i + 1 >= argc) {
+                std::cerr << "Expected test suite name to include with -t option" << std::endl;
+                return 1;
+            }
+            if (excludeMode) {
+                excludeMode = false;
+                executableSuites.clear();
+            }
+            char *inc = argv[++i];
+            auto entry = suites.find(inc);
+            if (entry == suites.end()) {
+                std::cerr << "Unknown test suite: " << inc << std::endl;
+                return 1;
+            }
+            executableSuites[entry->first] = entry->second;
+        }
+    }
+
+    for (auto & suite : executableSuites) {
+        auto executeSuite = suite.second;
+        acacia::Report suiteReport = executeSuite();
+        printSuiteResults(suiteReport, suite.first.c_str());
+        report += suiteReport;
+    }
 
     return report ? 0 : 1;
 }
