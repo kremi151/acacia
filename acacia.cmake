@@ -1,3 +1,5 @@
+set(ACACIA_TEST_INCLUDE_DIRS "${CMAKE_BINARY_DIR}/generated/include")
+
 macro(set_acacia_test_sources)
     set(ACACIA_TEST_SOURCES ${ARGV})
     set(ACACIA_SUITE_IMPORTS "")

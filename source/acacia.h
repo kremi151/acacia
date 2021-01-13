@@ -31,4 +31,8 @@ namespace __Acacia__TestSuite_##name { \
 } \
 namespace __Acacia__TestSuite_##name
 
+namespace acacia {
+    int runTests(int argc, char **argv, Report *outReport);
+}
+
 #endif //ACACIA_ACACIA_H
