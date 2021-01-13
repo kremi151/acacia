@@ -1,7 +1,12 @@
 set(ACACIA_TEST_INCLUDE_DIRS "${CMAKE_BINARY_DIR}/generated/include")
 
+macro(set_acacia_use_default_main)
+    configure_file("${ACACIA_SOURCE_DIR}/source/dynamic/acacia_default_main.cpp.in" "${CMAKE_BINARY_DIR}/generated/acacia_default_main.cpp" @ONLY)
+    set(ACACIA_TEST_SOURCES ${ACACIA_TEST_SOURCES} "${CMAKE_BINARY_DIR}/generated/acacia_default_main.cpp")
+endmacro()
+
 macro(set_acacia_test_sources)
-    set(ACACIA_TEST_SOURCES ${ARGV})
+    set(ACACIA_TEST_SOURCES ${ACACIA_TEST_SOURCES} ${ARGV})
     set(ACACIA_SUITE_IMPORTS "")
     set(ACACIA_REPORT_EXECUTION_CODE "")
     foreach(ACACIA_TEST_SOURCE ${ARGV})
