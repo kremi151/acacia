@@ -13,9 +13,12 @@
 
 using namespace acacia;
 
-Test __Acacia__nullTest = {nullptr, "", "" };
+Test __Acacia__nullTest = {nullptr, "", "", "" };
 
-Registry::Registry(): currentTestFromList(nullptr) {
+Registry::Registry()
+    : currentTestFromList(nullptr)
+    , currentSuite("default")
+{
 }
 
 Registry & Registry::instance() {
@@ -28,6 +31,7 @@ void Registry::registerTest(const char *fileName, const char *testName, void (*t
     test.testPtr = testPtr;
     test.testName = testName;
     test.fileName = fileName;
+    test.suiteName = currentSuite;
     registeredTests.push_back(test);
 }
 
@@ -42,6 +46,15 @@ Report Registry::runTestsOfFile(const std::string &fileName) {
     std::vector<Test> tests;
     std::copy_if(registeredTests.begin(), registeredTests.end(), std::back_inserter(tests), [fileName](Test &t) {
         return t.fileName == fileName;
+    });
+    return runSpecificTests(tests);
+}
+
+Report Registry::runTestsOfSuite(const std::string &suiteName) {
+    std::cout << "Start executing test suite " << suiteName << std::endl;
+    std::vector<Test> tests;
+    std::copy_if(registeredTests.begin(), registeredTests.end(), std::back_inserter(tests), [suiteName](Test &t) {
+        return t.suiteName == suiteName;
     });
     return runSpecificTests(tests);
 }
@@ -66,26 +79,26 @@ Report Registry::runSpecificTests(std::vector<Test> &tests) {
         currentStdErr = &capStderr;
         try {
             test.testPtr();
-            report.addResult(test.fileName, test.testName, true, "", 0, capStdout.str(), capStderr.str());
+            report.addResult(test.fileName, test.testName, test.suiteName, true, "", 0, capStdout.str(), capStderr.str());
             successCount++;
         } catch (const AssertionException &ex) {
             std::string assertionMessage = std::string("Assertion error: ") + ex.what();
             std::cerr << "Test " << test.testName << " failed:" << std::endl;
             std::cerr << "   Assertion error: " << ex.what() << std::endl;
             std::cerr << "   Error happened in " << ex.getFileName() << ":" << ex.getLine() << std::endl;
-            report.addResult(test.fileName, test.testName, false, std::string("Assertion error: ") + ex.what(), ex.getLine(), capStdout.str(), capStderr.str());
+            report.addResult(test.fileName, test.testName, test.suiteName, false, std::string("Assertion error: ") + ex.what(), ex.getLine(), capStdout.str(), capStderr.str());
             errorCount++;
         } catch (const std::exception &ex) {
             std::cerr << "Test " << test.testName << " failed:" << std::endl;
             std::cerr << "   Unexpected exception: " << ex.what() << std::endl;
             std::cerr << "   Error happened in " << test.fileName << ", unknown line" << std::endl;
-            report.addResult(test.fileName, test.testName, false, std::string("Unexpected exception: ") + ex.what(), 0, capStdout.str(), capStderr.str());
+            report.addResult(test.fileName, test.testName, test.suiteName, false, std::string("Unexpected exception: ") + ex.what(), 0, capStdout.str(), capStderr.str());
             errorCount++;
         } catch (...) {
             std::cerr << "Test " << test.testName << " failed:" << std::endl;
             std::cerr << "   Unexpected exception, no further information available" << std::endl;
             std::cerr << "   Error happened in " << test.fileName << ", unknown line" << std::endl;
-            report.addResult(test.fileName, test.testName, false, "Unexpected exception, no further information available", 0, capStdout.str(), capStderr.str());
+            report.addResult(test.fileName, test.testName, test.suiteName, false, "Unexpected exception, no further information available", 0, capStdout.str(), capStderr.str());
             errorCount++;
         }
         currentTestFromList = nullptr;
@@ -148,6 +161,18 @@ std::string Registry::getCurrentStdErr() {
     }
 }
 
+void Registry::setCurrentSuite(const std::string &suiteName) {
+    this->currentSuite = suiteName;
+}
+
+std::string & Registry::getCurrentSuite() {
+    return currentSuite;
+}
+
 Registration::Registration(const char *fileName, const char *testName, void (*testPtr)()) noexcept {
     Registry::instance().registerTest(fileName, testName, testPtr);
+}
+
+StartSuite::StartSuite(const char *suiteName) noexcept {
+    Registry::instance().setCurrentSuite(suiteName);
 }

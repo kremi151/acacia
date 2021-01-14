@@ -16,6 +16,7 @@ namespace acacia {
         void (*testPtr)();
         std::string testName;
         std::string fileName;
+        std::string suiteName;
     } Test;
 
     class Registry{
@@ -26,14 +27,21 @@ namespace acacia {
         Test *currentTestFromList;
         StreamCapture *currentStdOut, *currentStdErr;
 
+        std::string currentSuite;
+
         Report runSpecificTests(std::vector<Test> &tests);
     public:
         void registerTest(const char *fileName, const char *testName, void (*testPtr)());
         Report runTests();
+        [[deprecated]]
         Report runTestsOfFile(const std::string &fileName);
+        Report runTestsOfSuite(const std::string &suiteName);
         const Test &currentTest();
         std::string getCurrentStdOut();
         std::string getCurrentStdErr();
+
+        void setCurrentSuite(const std::string &suiteName);
+        std::string &getCurrentSuite();
 
         static Registry &instance();
     };
@@ -41,6 +49,11 @@ namespace acacia {
     class Registration{
     public:
         Registration(const char *fileName, const char *testName, void (*testPtr)()) noexcept;
+    };
+
+    class StartSuite {
+    public:
+        StartSuite(const char *suiteName) noexcept;
     };
 
 }
