@@ -15,13 +15,13 @@ namespace acacia {
 
     class TestResult {
     private:
-        const std::string testName;
-        const std::string suiteName;
-        const bool success;
-        const std::string assertion;
-        const unsigned int errorLine;
-        const std::string output;
-        const std::string errorOutput;
+        std::string testName;
+        std::string suiteName;
+        bool success;
+        std::string assertion;
+        unsigned int errorLine;
+        std::string output;
+        std::string errorOutput;
     public:
         TestResult(std::string testName, std::string suiteName, bool success, std::string assertion, unsigned int errorLine, std::string output, std::string errorOutput);
 
