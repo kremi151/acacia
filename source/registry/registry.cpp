@@ -9,7 +9,6 @@
 #include <exceptions/assertion_exception.h>
 #include <chrono>
 #include <iomanip>
-#include <algorithm>
 
 using namespace acacia;
 
@@ -28,6 +27,9 @@ void Registry::registerTest(const char *fileName, const char *testName, void (*t
     if (fileEntry.fileName.empty()) {
         fileEntry.fileName = fileName;
     }
+    if (fileEntry.suiteName.empty()) {
+        fileEntry.suiteName = currentSuite;
+    }
     fileEntry.tests.push_back({
         testPtr,
         testName,
@@ -40,6 +42,9 @@ void Registry::registerBefore(bool file, const char *fileName, void (*funcPtr)()
     if (fileEntry.fileName.empty()) {
         fileEntry.fileName = fileName;
     }
+    if (fileEntry.suiteName.empty()) {
+        fileEntry.suiteName = currentSuite;
+    }
     if (file) {
         fileEntry.beforeFile.push_back(funcPtr);
     } else {
@@ -51,6 +56,9 @@ void Registry::registerAfter(bool file, const char *fileName, void (*funcPtr)())
     auto &fileEntry = fileEntries[fileName];
     if (fileEntry.fileName.empty()) {
         fileEntry.fileName = fileName;
+    }
+    if (fileEntry.suiteName.empty()) {
+        fileEntry.suiteName = currentSuite;
     }
     if (file) {
         fileEntry.afterFile.push_back(funcPtr);
@@ -116,9 +124,11 @@ bool Registry::runTest(const std::string &fileName, const std::string &testName,
 Report Registry::runTestsOfSuite(const std::string &suiteName) {
     std::cout << "Start executing test suite " << suiteName << std::endl;
     std::vector<FileEntry> tests;
-    std::copy_if(fileEntries.begin(), fileEntries.end(), std::back_inserter(tests), [suiteName](FileEntry &t) {
-        return t.suiteName == suiteName;
-    });
+    for (const auto &pair : fileEntries) {
+        if (pair.second.suiteName == suiteName) {
+            tests.emplace_back(pair.second);
+        }
+    }
     return runSpecificTests(tests);
 }
 
