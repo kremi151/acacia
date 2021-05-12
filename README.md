@@ -6,7 +6,7 @@ A small and lightweight C++ testing framework
 ## Setup
 
 Download this repository manually or using `Git submodules` into a sub folder of your project.
-Assuming you put acacia in a sub folder called `acacia`, add the following lines to your `CMakeLists.txt` file:
+Assuming you've put acacia in a sub folder called `acacia`, add the following lines to your `CMakeLists.txt` file:
 
 ```
 project(your_project_name)
@@ -136,15 +136,17 @@ Acacia provides the following APIs for generating test reports in specific forma
 #### Acacia format (JSON)
 
 ```
-auto report = runAcaciaTests();
+acacia::Report report;
+int status = acacia::runTests(argc, argv, &report);
 std::ofstream reportFile("test-report.txt");
-acacia::generateAcaciaReport(result, reportFile);
+acacia::generateAcaciaReport(report, reportFile);
 ```
 
 #### JUnit format (XML)
 
 ```
-auto report = runAcaciaTests();
+acacia::Report report;
+int status = acacia::runTests(argc, argv, &report);
 std::ofstream reportFile("test-report.xml");
-acacia::generateJUnitReport(result, reportFile);
+acacia::generateJUnitReport(report, reportFile);
 ```
