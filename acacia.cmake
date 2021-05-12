@@ -1,11 +1,16 @@
-set(ACACIA_TEST_INCLUDE_DIRS "${CMAKE_BINARY_DIR}/generated/include")
+macro(set_acacia_paths_internal)
+    set(ACACIA_GENERATED_DIR "${CMAKE_BINARY_DIR}/acacia-generated")
+    set(ACACIA_TEST_INCLUDE_DIRS "${ACACIA_GENERATED_DIR}/include")
+endmacro()
 
 macro(set_acacia_use_default_main)
-    configure_file("${ACACIA_SOURCE_DIR}/source/dynamic/acacia_default_main.cpp.in" "${CMAKE_BINARY_DIR}/generated/acacia_default_main.cpp" @ONLY)
-    set(ACACIA_TEST_SOURCES ${ACACIA_TEST_SOURCES} "${CMAKE_BINARY_DIR}/generated/acacia_default_main.cpp")
+    set_acacia_paths_internal()
+    configure_file("${ACACIA_SOURCE_DIR}/source/dynamic/acacia_default_main.cpp.in" "${ACACIA_GENERATED_DIR}/default_main.cpp" @ONLY)
+    set(ACACIA_TEST_SOURCES ${ACACIA_TEST_SOURCES} "${ACACIA_GENERATED_DIR}/default_main.cpp")
 endmacro()
 
 macro(set_acacia_test_sources)
+    set_acacia_paths_internal()
     set(ACACIA_TEST_SOURCES ${ACACIA_TEST_SOURCES} ${ARGV})
     set(ACACIA_SUITE_IMPORTS "")
     set(ACACIA_REPORT_EXECUTION_CODE "")
@@ -20,8 +25,8 @@ macro(set_acacia_test_sources)
         if(NOT "${ACACIA_TEST_SUITE_NAME}" STREQUAL "")
             message(STATUS "Found test suite '${ACACIA_TEST_SUITE_NAME}'")
 
-            configure_file("${ACACIA_SOURCE_DIR}/source/dynamic/test_suite_header.h.in" "${CMAKE_BINARY_DIR}/generated/suite_${ACACIA_TEST_SUITE_NAME}.h" @ONLY)
-            set(ACACIA_TEST_HEADERS ${ACACIA_TEST_HEADERS} "${CMAKE_BINARY_DIR}/generated/suite_${ACACIA_TEST_SUITE_NAME}.h")
+            configure_file("${ACACIA_SOURCE_DIR}/source/dynamic/test_suite_header.h.in" "${ACACIA_GENERATED_DIR}/suite_${ACACIA_TEST_SUITE_NAME}.h" @ONLY)
+            set(ACACIA_TEST_HEADERS ${ACACIA_TEST_HEADERS} "${ACACIA_GENERATED_DIR}/suite_${ACACIA_TEST_SUITE_NAME}.h")
 
             set(ACACIA_SUITE_IMPORTS "${ACACIA_SUITE_IMPORTS}\n\
 #include \"suite_${ACACIA_TEST_SUITE_NAME}.h\"")
@@ -30,8 +35,8 @@ suites[\"${ACACIA_TEST_SUITE_NAME}\"] = __Acacia__TestSuite_${ACACIA_TEST_SUITE_
         endif()
     endforeach()
 
-    configure_file("${ACACIA_SOURCE_DIR}/source/dynamic/acacia_run_tests.cpp.in" "${CMAKE_BINARY_DIR}/generated/acacia_run_tests.cpp" @ONLY)
-    set(ACACIA_TEST_SOURCES ${ACACIA_TEST_SOURCES} "${CMAKE_BINARY_DIR}/generated/acacia_run_tests.cpp")
+    configure_file("${ACACIA_SOURCE_DIR}/source/dynamic/acacia_run_tests.cpp.in" "${ACACIA_GENERATED_DIR}/run_tests.cpp" @ONLY)
+    set(ACACIA_TEST_SOURCES ${ACACIA_TEST_SOURCES} "${ACACIA_GENERATED_DIR}/run_tests.cpp")
 
     set(ACACIA_TEST_SOURCE_CONTENT "")
 endmacro()
