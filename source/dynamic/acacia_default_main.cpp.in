@@ -4,10 +4,10 @@
 int main(int argc, char **argv) {
     acacia::Report report;
 
-    acacia::runTests(argc, argv, &report);
+    int status = acacia::runTests(argc, argv, &report);
 
     std::ofstream reportFile("acacia-report.txt");
     acacia::generateAcaciaReport(report, reportFile);
 
-    return report ? 0 : 1;
+    return status;
 }

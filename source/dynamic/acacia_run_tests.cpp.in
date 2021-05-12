@@ -75,7 +75,7 @@ namespace acacia {
             *outReport = report;
         }
 
-        return report ? 0 : 1;
+        return report.getErrorCount();
     }
 
 }
