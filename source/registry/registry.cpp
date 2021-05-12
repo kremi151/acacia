@@ -7,17 +7,13 @@
 #include <iostream>
 #include <exception>
 #include <exceptions/assertion_exception.h>
-#include <algorithm>
 #include <chrono>
 #include <iomanip>
 
 using namespace acacia;
 
-Test __Acacia__nullTest = {nullptr, "", "", "" };
-
 Registry::Registry()
-    : currentTestFromList(nullptr)
-    , currentSuite("default")
+    : currentSuite("default")
 {
 }
 
@@ -27,83 +23,178 @@ Registry & Registry::instance() {
 }
 
 void Registry::registerTest(const char *fileName, const char *testName, void (*testPtr)()) {
-    Test test;
-    test.testPtr = testPtr;
-    test.testName = testName;
-    test.fileName = fileName;
-    test.suiteName = currentSuite;
-    registeredTests.push_back(test);
+    auto &fileEntry = fileEntries[fileName];
+    if (fileEntry.fileName.empty()) {
+        fileEntry.fileName = fileName;
+    }
+    if (fileEntry.suiteName.empty()) {
+        fileEntry.suiteName = currentSuite;
+    }
+    fileEntry.tests.push_back({
+        testPtr,
+        testName,
+        fileName
+    });
+}
+
+void Registry::registerBefore(bool file, const char *fileName, void (*funcPtr)()) {
+    auto &fileEntry = fileEntries[fileName];
+    if (fileEntry.fileName.empty()) {
+        fileEntry.fileName = fileName;
+    }
+    if (fileEntry.suiteName.empty()) {
+        fileEntry.suiteName = currentSuite;
+    }
+    if (file) {
+        fileEntry.beforeFile.push_back(funcPtr);
+    } else {
+        fileEntry.before.push_back(funcPtr);
+    }
+}
+
+void Registry::registerAfter(bool file, const char *fileName, void (*funcPtr)()) {
+    auto &fileEntry = fileEntries[fileName];
+    if (fileEntry.fileName.empty()) {
+        fileEntry.fileName = fileName;
+    }
+    if (fileEntry.suiteName.empty()) {
+        fileEntry.suiteName = currentSuite;
+    }
+    if (file) {
+        fileEntry.afterFile.push_back(funcPtr);
+    } else {
+        fileEntry.after.push_back(funcPtr);
+    }
 }
 
 Report Registry::runTests() {
-    std::vector<Test> tests(registeredTests);
+    std::vector<FileEntry> tests;
+    for (auto & fileEntry : fileEntries) {
+        tests.push_back(fileEntry.second);
+    }
     std::cout << "Start executing tests all tests" << std::endl;
     return runSpecificTests(tests);
 }
 
 Report Registry::runTestsOfFile(const std::string &fileName) {
     std::cout << "Start executing tests of " << fileName << std::endl;
-    std::vector<Test> tests;
-    std::copy_if(registeredTests.begin(), registeredTests.end(), std::back_inserter(tests), [fileName](Test &t) {
-        return t.fileName == fileName;
-    });
+    std::vector<FileEntry> tests;
+    tests.push_back(fileEntries[fileName]);
     return runSpecificTests(tests);
+}
+
+bool Registry::runTest(const std::string &fileName, const std::string &testName, const std::string &suiteName, const std::vector<func_ptr> &steps, Report &outReport) {
+    StreamCapture capStdout(std::cout);
+    StreamCapture capStderr(std::cerr);
+    currentStdOut = &capStdout;
+    currentStdErr = &capStderr;
+    bool result;
+    try {
+        for (const func_ptr &step : steps) {
+            step();
+        }
+        outReport.addResult(fileName, testName, suiteName, true, "", 0, capStdout.str(), capStderr.str());
+        result = true;
+    } catch (const AssertionException &ex) {
+        std::string assertionMessage = std::string("Assertion error: ") + ex.what();
+        std::cerr << "Test " << testName << " failed:" << std::endl;
+        std::cerr << "   Assertion error: " << ex.what() << std::endl;
+        std::cerr << "   Error happened in " << ex.getFileName() << ":" << ex.getLine() << std::endl;
+        outReport.addResult(fileName, testName, suiteName, false, std::string("Assertion error: ") + ex.what(), ex.getLine(), capStdout.str(), capStderr.str());
+        result = false;
+    } catch (const std::exception &ex) {
+        std::cerr << "Test " << testName << " failed:" << std::endl;
+        std::cerr << "   Unexpected exception: " << ex.what() << std::endl;
+        std::cerr << "   Error happened in " << fileName << ", unknown line" << std::endl;
+        outReport.addResult(fileName, testName, suiteName, false, std::string("Unexpected exception: ") + ex.what(), 0, capStdout.str(), capStderr.str());
+        result = false;
+    } catch (...) {
+        std::cerr << "Test " << testName << " failed:" << std::endl;
+        std::cerr << "   Unexpected exception, no further information available" << std::endl;
+        std::cerr << "   Error happened in " << fileName << ", unknown line" << std::endl;
+        outReport.addResult(fileName, testName, suiteName, false, "Unexpected exception, no further information available", 0, capStdout.str(), capStderr.str());
+        result = false;
+    }
+    _currentTestName = "MISSINGNO";
+    currentStdOut = nullptr;
+    currentStdErr = nullptr;
+    return result;
 }
 
 Report Registry::runTestsOfSuite(const std::string &suiteName) {
     std::cout << "Start executing test suite " << suiteName << std::endl;
-    std::vector<Test> tests;
-    std::copy_if(registeredTests.begin(), registeredTests.end(), std::back_inserter(tests), [suiteName](Test &t) {
-        return t.suiteName == suiteName;
-    });
+    std::vector<FileEntry> tests;
+    for (const auto &pair : fileEntries) {
+        if (pair.second.suiteName == suiteName) {
+            tests.emplace_back(pair.second);
+        }
+    }
     return runSpecificTests(tests);
 }
 
-Report Registry::runSpecificTests(std::vector<Test> &tests) {
+Report Registry::runSpecificTests(std::vector<FileEntry> &files) {
     std::chrono::steady_clock::time_point chronoBegin = std::chrono::steady_clock::now();
 
+    // TODO: Use a map test->state where state = SUCCESS|FAILURE|PENDING
     size_t testCount = 0;
     size_t successCount = 0;
     size_t errorCount = 0;
 
     Report report;
 
-    auto end = tests.end();
-    for (auto i = tests.begin() ; i != end ; i++) {
-        testCount++;
-        auto &test = *i;
-        currentTestFromList = &test;
-        StreamCapture capStdout(std::cout);
-        StreamCapture capStderr(std::cerr);
-        currentStdOut = &capStdout;
-        currentStdErr = &capStderr;
-        try {
-            test.testPtr();
-            report.addResult(test.fileName, test.testName, test.suiteName, true, "", 0, capStdout.str(), capStderr.str());
-            successCount++;
-        } catch (const AssertionException &ex) {
-            std::string assertionMessage = std::string("Assertion error: ") + ex.what();
-            std::cerr << "Test " << test.testName << " failed:" << std::endl;
-            std::cerr << "   Assertion error: " << ex.what() << std::endl;
-            std::cerr << "   Error happened in " << ex.getFileName() << ":" << ex.getLine() << std::endl;
-            report.addResult(test.fileName, test.testName, test.suiteName, false, std::string("Assertion error: ") + ex.what(), ex.getLine(), capStdout.str(), capStderr.str());
-            errorCount++;
-        } catch (const std::exception &ex) {
-            std::cerr << "Test " << test.testName << " failed:" << std::endl;
-            std::cerr << "   Unexpected exception: " << ex.what() << std::endl;
-            std::cerr << "   Error happened in " << test.fileName << ", unknown line" << std::endl;
-            report.addResult(test.fileName, test.testName, test.suiteName, false, std::string("Unexpected exception: ") + ex.what(), 0, capStdout.str(), capStderr.str());
-            errorCount++;
-        } catch (...) {
-            std::cerr << "Test " << test.testName << " failed:" << std::endl;
-            std::cerr << "   Unexpected exception, no further information available" << std::endl;
-            std::cerr << "   Error happened in " << test.fileName << ", unknown line" << std::endl;
-            report.addResult(test.fileName, test.testName, test.suiteName, false, "Unexpected exception, no further information available", 0, capStdout.str(), capStderr.str());
-            errorCount++;
+    auto end = files.end();
+    for (auto i = files.begin() ; i != end ; i++) {
+        auto &fileEntry = *i;
+
+        std::vector<func_ptr> testSteps;
+
+        if (!fileEntry.beforeFile.empty()) {
+            for (const auto &func : fileEntry.beforeFile) {
+                testSteps.push_back(func);
+            }
+            _currentTestName = "<before file>";
+            if (!runTest(fileEntry.fileName, _currentTestName, fileEntry.suiteName, testSteps, report)) {
+                errorCount++;
+                for (const auto &test : fileEntry.tests) {
+                    report.addResult(fileEntry.fileName, test.testName, fileEntry.suiteName, false, "Previous error", 0, "", "");
+                    errorCount++;
+                }
+                continue;
+            }
         }
-        currentTestFromList = nullptr;
-        currentStdOut = nullptr;
-        currentStdErr = nullptr;
+
+        testSteps.clear();
+        for (const auto &func : fileEntry.before) {
+            testSteps.push_back(func);
+        }
+        testSteps.push_back(nullptr);
+        for (const auto &func : fileEntry.after) {
+            testSteps.push_back(func);
+        }
+
+        for (const auto &test : fileEntry.tests) {
+            testCount++;
+            _currentTestName = test.testName;
+            testSteps[fileEntry.before.size()] = test.funcPtr;
+            if (runTest(test.fileName, test.testName, fileEntry.suiteName, testSteps, report)) {
+                successCount++;
+            } else {
+                errorCount++;
+            }
+        }
+
+        testSteps.clear();
+        if (!fileEntry.afterFile.empty()) {
+            for (const auto &func : fileEntry.afterFile) {
+                testSteps.push_back(func);
+            }
+            _currentTestName = "<after file>";
+            if (!runTest(fileEntry.fileName, _currentTestName, fileEntry.suiteName, testSteps, report)) {
+                errorCount++;
+                continue;
+            }
+        }
+
     }
 
     std::chrono::steady_clock::time_point chronoEnd = std::chrono::steady_clock::now();
@@ -137,12 +228,8 @@ Report Registry::runSpecificTests(std::vector<Test> &tests) {
     return report;
 }
 
-const Test & Registry::currentTest() {
-    if (currentTestFromList == nullptr) {
-        return __Acacia__nullTest;
-    } else {
-        return *currentTestFromList;
-    }
+const std::string &Registry::currentTestName() {
+    return _currentTestName;
 }
 
 std::string Registry::getCurrentStdOut() {
@@ -161,16 +248,24 @@ std::string Registry::getCurrentStdErr() {
     }
 }
 
+TestRegistration::TestRegistration(const char *fileName, const char *testName, void (*testPtr)()) noexcept {
+    Registry::instance().registerTest(fileName, testName, testPtr);
+}
+
+BeforeRegistration::BeforeRegistration(bool file, const char *fileName, void (*testPtr)()) noexcept {
+    Registry::instance().registerBefore(file, fileName, testPtr);
+}
+
+AfterRegistration::AfterRegistration(bool file, const char *fileName, void (*testPtr)()) noexcept {
+    Registry::instance().registerAfter(file, fileName, testPtr);
+}
+
 void Registry::setCurrentSuite(const std::string &suiteName) {
     this->currentSuite = suiteName;
 }
 
 std::string & Registry::getCurrentSuite() {
     return currentSuite;
-}
-
-Registration::Registration(const char *fileName, const char *testName, void (*testPtr)()) noexcept {
-    Registry::instance().registerTest(fileName, testName, testPtr);
 }
 
 StartSuite::StartSuite(const char *suiteName) noexcept {

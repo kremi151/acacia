@@ -13,8 +13,28 @@
 
 #define TEST(name) \
 void __Acacia__Test__##name(); \
-acacia::Registration __Acacia__Registration_##name(__FILE__, #name, __Acacia__Test__##name); \
+acacia::TestRegistration __Acacia__Registration_##name(__FILE__, #name, __Acacia__Test__##name); \
 void __Acacia__Test__##name()
+
+#define BEFORE(name) \
+void __Acacia__BeforeFunc__##name(); \
+acacia::BeforeRegistration __Acacia__BeforeRegistration_##name(false, __FILE__, __Acacia__BeforeFunc__##name); \
+void __Acacia__BeforeFunc__##name()
+
+#define AFTER(name) \
+void __Acacia__AfterFunc__##name(); \
+acacia::AfterRegistration __Acacia__AfterRegistration_##name(false, __FILE__, __Acacia__AfterFunc__##name); \
+void __Acacia__AfterFunc__##name()
+
+#define BEFORE_FILE(name) \
+void __Acacia__BeforeFileFunc__##name(); \
+acacia::BeforeRegistration __Acacia__BeforeFileRegistration_##name(true, __FILE__, __Acacia__BeforeFileFunc__##name); \
+void __Acacia__BeforeFileFunc__##name()
+
+#define AFTER_FILE(name) \
+void __Acacia__AfterFileFunc__##name(); \
+acacia::AfterRegistration __Acacia__AfterFileRegistration_##name(true, __FILE__, __Acacia__AfterFileFunc__##name); \
+void __Acacia__AfterFileFunc__##name()
 
 #define runAcaciaTests() \
 acacia::Registry::instance().runTests()

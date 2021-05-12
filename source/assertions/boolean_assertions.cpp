@@ -9,14 +9,14 @@
 
 void __acacia_assertTrue(bool value, const char *file, unsigned int line) {
     if (!value) {
-        throw acacia::AssertionException(file, acacia::Registry::instance().currentTest().testName,
+        throw acacia::AssertionException(file, acacia::Registry::instance().currentTestName(),
                 line, "Expected value to be true, but was false");
     }
 }
 
 void __acacia_assertFalse(bool value, const char *file, unsigned int line) {
     if (value) {
-        throw acacia::AssertionException(file, acacia::Registry::instance().currentTest().testName,
+        throw acacia::AssertionException(file, acacia::Registry::instance().currentTestName(),
                 line, "Expected value to be false, but was true");
     }
 }
