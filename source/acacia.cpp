@@ -1,12 +1,14 @@
-#include <acacia.h>
+//
+// Created by Michel on 12.05.2021.
+//
+
+#include "acacia.h"
+
+#include <util/test_suites.h>
 
 #include <iostream>
 #include <map>
 #include <cstring>
-
-@ACACIA_SUITE_IMPORTS@
-
-typedef acacia::Report(*SuiteRunner)();
 
 namespace acacia {
 
@@ -32,7 +34,7 @@ namespace acacia {
         std::map<std::string, SuiteRunner> executableSuites;
         bool excludeMode = true;
 
-        @ACACIA_SUITE_MAP_CODE@
+        populateSuites(suites);
 
         executableSuites = suites;
 

@@ -1,0 +1,8 @@
+#include <acacia.h>
+#include <util/test_suites.h>
+
+@ACACIA_SUITE_IMPORTS@
+
+void acacia::populateSuites(std::map<std::string, SuiteRunner> &suites) {
+    @ACACIA_SUITE_MAP_CODE@
+}

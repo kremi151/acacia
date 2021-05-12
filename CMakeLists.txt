@@ -8,6 +8,7 @@ set(ACACIA_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR} PARENT_SCOPE)
 include(acacia.cmake)
 
 set(SOURCES
+        source/acacia.cpp
         source/registry/registry.cpp
         source/exceptions/assertion_exception.cpp
         source/assertions/manual_assertions.cpp
@@ -39,6 +40,7 @@ set(HEADERS
         source/io/teebuf.h
         source/io/teestream.h
         source/util/json_serialization.h
+        source/util/test_suites.h
         )
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DFB_DEBUG")

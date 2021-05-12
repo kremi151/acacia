@@ -35,8 +35,8 @@ suites[\"${ACACIA_TEST_SUITE_NAME}\"] = __Acacia__TestSuite_${ACACIA_TEST_SUITE_
         endif()
     endforeach()
 
-    configure_file("${ACACIA_SOURCE_DIR}/source/dynamic/acacia_run_tests.cpp.in" "${ACACIA_GENERATED_DIR}/run_tests.cpp" @ONLY)
-    set(ACACIA_TEST_SOURCES ${ACACIA_TEST_SOURCES} "${ACACIA_GENERATED_DIR}/run_tests.cpp")
+    configure_file("${ACACIA_SOURCE_DIR}/source/dynamic/test_suites.cpp.in" "${ACACIA_GENERATED_DIR}/test_suites.cpp" @ONLY)
+    set(ACACIA_TEST_SOURCES ${ACACIA_TEST_SOURCES} "${ACACIA_GENERATED_DIR}/test_suites.cpp")
 
     set(ACACIA_TEST_SOURCE_CONTENT "")
 endmacro()
