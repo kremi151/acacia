@@ -7,6 +7,15 @@ set(ACACIA_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR} PARENT_SCOPE)
 
 include(acacia.cmake)
 
+set(GENERATOR_SOURCES
+        generator-source/main.cpp
+        )
+
+set(GENERATOR_HEADERS
+        )
+
+add_executable(acacia-gen ${GENERATOR_SOURCES} ${GENERATOR_HEADERS})
+
 set(SOURCES
         source/acacia.cpp
         source/registry/registry.cpp
