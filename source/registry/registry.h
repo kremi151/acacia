@@ -31,6 +31,7 @@ namespace acacia {
         std::vector<Entry> tests;
         std::vector<func_ptr> after;
         std::vector<func_ptr> afterFile;
+        std::string suiteName;
     } FileEntry;
 
     class Registry{
@@ -42,16 +43,25 @@ namespace acacia {
         StreamCapture *currentStdOut, *currentStdErr;
 
         Report runSpecificTests(std::vector<FileEntry> &files);
-        bool runTest(const std::string &fileName, const std::string &testName, const std::vector<func_ptr> &steps, Report &outReport);
+        bool runTest(const std::string &fileName, const std::string &testName, const std::string &suiteName, const std::vector<func_ptr> &steps, Report &outReport);
+
+        std::string currentSuite;
     public:
         void registerTest(const char *fileName, const char *testName, void (*testPtr)());
         void registerBefore(bool file, const char *fileName, void (*funcPtr)());
         void registerAfter(bool file, const char *fileName, void (*funcPtr)());
         Report runTests();
+        [[deprecated]]
         Report runTestsOfFile(const std::string &fileName);
+
+        Report runTestsOfSuite(const std::string &suiteName);
         const std::string &currentTestName();
+
         std::string getCurrentStdOut();
         std::string getCurrentStdErr();
+
+        void setCurrentSuite(const std::string &suiteName);
+        std::string &getCurrentSuite();
 
         static Registry &instance();
     };
@@ -69,6 +79,11 @@ namespace acacia {
     class AfterRegistration{
     public:
         AfterRegistration(bool file, const char *fileName, void (*testPtr)()) noexcept;
+    };
+
+    class StartSuite {
+    public:
+        StartSuite(const char *suiteName) noexcept;
     };
 
 }

@@ -14,6 +14,17 @@ project(your_project_name)
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/acacia")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/acacia/source")
 
+set_acacia_use_default_main()
+
+set_acacia_test_sources(
+    test_source1.cpp
+    test_source2.cpp
+)
+
+include_directories(${ACACIA_TEST_INCLUDE_DIRS})
+
+add_executable(your_project_name ${ACACIA_TEST_SOURCES} ${ACACIA_TEST_HEADERS})
+
 target_link_libraries(your_project_name acacia)
 ```
 
@@ -27,28 +38,39 @@ Everything you need can be imported with the following `include` directive:
 
 ### How to write a test
 
-Tests can be defined as follows:
+Tests need to belong to a test suite, they can be defined as follows:
 ```
-TEST(yourTestNameHere) {
-    int answerToEverything = 42;
-    assertEquals(42, answerToEverything);
+TEST_SUITE(yourTestSuiteNameHere) {
+
+    TEST(yourTestNameHere) {
+        int answerToEverything = 42;
+        assertEquals(42, answerToEverything);
+    }
+
+    TEST(anotherTest) {
+        ...
+    }
+
 }
 ```
 
-By writing this piece of code, you will create test which will automatically be registered within the `acacia` runtime.
+By writing this piece of code, you will create tests which will automatically be registered within the `acacia` runtime.
 This examples uses the `assertEquals` assertion. Other available assertions will be listed below.
 
-### How to launch tests
+### How to execute tests
 
-While tests are registered dynamically, they have to be launched manually (preferably in your `main` function):
+If you use the `set_acacia_use_default_main()` macro in your `CMakeLists.txt`, you're all set and there's nothing more to do for you.
+The built binary can be executed out of the box.
+
+If you wish to implement a custom `main` function, you need to follow these steps:
+
+1. Do *not* use the `set_acacia_use_default_main()` macro in your `CMakeLists.txt`
+2. Call `acacia::runTests` like for example as follows:
 ```
-int main() {
-    auto report = runAcaciaTests();
-    if (report) {
-        return 0; // In case of no failing tests, return successful exit code
-    } else {
-        return 1; // In case of some failing tests, return unsuccessful exit code
-    }
+#include <acacia.h>
+
+int main(int argc, char **argv) {
+    return acacia::runTests(argc, argv, nullptr);
 }
 ```
 

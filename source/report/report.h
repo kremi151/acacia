@@ -15,16 +15,18 @@ namespace acacia {
 
     class TestResult {
     private:
-        const std::string testName;
-        const bool success;
-        const std::string assertion;
-        const unsigned int errorLine;
-        const std::string output;
-        const std::string errorOutput;
+        std::string testName;
+        std::string suiteName;
+        bool success;
+        std::string assertion;
+        unsigned int errorLine;
+        std::string output;
+        std::string errorOutput;
     public:
-        TestResult(std::string testName, bool success, std::string assertion, unsigned int errorLine, std::string output, std::string errorOutput);
+        TestResult(std::string testName, std::string suiteName, bool success, std::string assertion, unsigned int errorLine, std::string output, std::string errorOutput);
 
         const std::string &getTestName() const;
+        const std::string &getSuiteName() const;
         const std::string &getAssertion() const;
         unsigned int getErrorLine() const;
         const std::string &getOutput() const;
@@ -50,13 +52,15 @@ namespace acacia {
         size_t getErrorCount();
 
         std::map<std::string, std::vector<TestResult>>::const_iterator results_begin();
+        std::map<std::string, std::vector<TestResult>>::const_iterator results_begin() const;
         std::map<std::string, std::vector<TestResult>>::const_iterator results_end();
+        std::map<std::string, std::vector<TestResult>>::const_iterator results_end() const;
 
         Report &operator+=(const Report &other);
 
         explicit operator bool();
 
-        void addResult(const std::string &fileName, std::string testName, bool success, std::string assertion, unsigned int errorLine, std::string output, std::string errorOutput);
+        void addResult(const std::string &fileName, std::string testName, std::string suiteName, bool success, std::string assertion, unsigned int errorLine, std::string output, std::string errorOutput);
     };
 
 }

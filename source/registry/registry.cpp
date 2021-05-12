@@ -9,10 +9,14 @@
 #include <exceptions/assertion_exception.h>
 #include <chrono>
 #include <iomanip>
+#include <algorithm>
 
 using namespace acacia;
 
-Registry::Registry() = default;
+Registry::Registry()
+    : currentSuite("default")
+{
+}
 
 Registry & Registry::instance() {
     static Registry registry;
@@ -71,7 +75,7 @@ Report Registry::runTestsOfFile(const std::string &fileName) {
     return runSpecificTests(tests);
 }
 
-bool Registry::runTest(const std::string &fileName, const std::string &testName, const std::vector<func_ptr> &steps, Report &outReport) {
+bool Registry::runTest(const std::string &fileName, const std::string &testName, const std::string &suiteName, const std::vector<func_ptr> &steps, Report &outReport) {
     StreamCapture capStdout(std::cout);
     StreamCapture capStderr(std::cerr);
     currentStdOut = &capStdout;
@@ -81,32 +85,41 @@ bool Registry::runTest(const std::string &fileName, const std::string &testName,
         for (const func_ptr &step : steps) {
             step();
         }
-        outReport.addResult(fileName, testName, true, "", 0, capStdout.str(), capStderr.str());
+        outReport.addResult(fileName, testName, suiteName, true, "", 0, capStdout.str(), capStderr.str());
         result = true;
     } catch (const AssertionException &ex) {
         std::string assertionMessage = std::string("Assertion error: ") + ex.what();
         std::cerr << "Test " << testName << " failed:" << std::endl;
         std::cerr << "   Assertion error: " << ex.what() << std::endl;
         std::cerr << "   Error happened in " << ex.getFileName() << ":" << ex.getLine() << std::endl;
-        outReport.addResult(fileName, testName, false, std::string("Assertion error: ") + ex.what(), ex.getLine(), capStdout.str(), capStderr.str());
+        outReport.addResult(fileName, testName, suiteName, false, std::string("Assertion error: ") + ex.what(), ex.getLine(), capStdout.str(), capStderr.str());
         result = false;
     } catch (const std::exception &ex) {
         std::cerr << "Test " << testName << " failed:" << std::endl;
         std::cerr << "   Unexpected exception: " << ex.what() << std::endl;
         std::cerr << "   Error happened in " << fileName << ", unknown line" << std::endl;
-        outReport.addResult(fileName, testName, false, std::string("Unexpected exception: ") + ex.what(), 0, capStdout.str(), capStderr.str());
+        outReport.addResult(fileName, testName, suiteName, false, std::string("Unexpected exception: ") + ex.what(), 0, capStdout.str(), capStderr.str());
         result = false;
     } catch (...) {
         std::cerr << "Test " << testName << " failed:" << std::endl;
         std::cerr << "   Unexpected exception, no further information available" << std::endl;
         std::cerr << "   Error happened in " << fileName << ", unknown line" << std::endl;
-        outReport.addResult(fileName, testName, false, "Unexpected exception, no further information available", 0, capStdout.str(), capStderr.str());
+        outReport.addResult(fileName, testName, suiteName, false, "Unexpected exception, no further information available", 0, capStdout.str(), capStderr.str());
         result = false;
     }
     _currentTestName = "MISSINGNO";
     currentStdOut = nullptr;
     currentStdErr = nullptr;
     return result;
+}
+
+Report Registry::runTestsOfSuite(const std::string &suiteName) {
+    std::cout << "Start executing test suite " << suiteName << std::endl;
+    std::vector<FileEntry> tests;
+    std::copy_if(fileEntries.begin(), fileEntries.end(), std::back_inserter(tests), [suiteName](FileEntry &t) {
+        return t.suiteName == suiteName;
+    });
+    return runSpecificTests(tests);
 }
 
 Report Registry::runSpecificTests(std::vector<FileEntry> &files) {
@@ -130,10 +143,10 @@ Report Registry::runSpecificTests(std::vector<FileEntry> &files) {
                 testSteps.push_back(func);
             }
             _currentTestName = "<before file>";
-            if (!runTest(fileEntry.fileName, _currentTestName, testSteps, report)) {
+            if (!runTest(fileEntry.fileName, _currentTestName, fileEntry.suiteName, testSteps, report)) {
                 errorCount++;
                 for (const auto &test : fileEntry.tests) {
-                    report.addResult(fileEntry.fileName, test.testName, false, "Previous error", 0, "", "");
+                    report.addResult(fileEntry.fileName, test.testName, fileEntry.suiteName, false, "Previous error", 0, "", "");
                     errorCount++;
                 }
                 continue;
@@ -153,7 +166,7 @@ Report Registry::runSpecificTests(std::vector<FileEntry> &files) {
             testCount++;
             _currentTestName = test.testName;
             testSteps[fileEntry.before.size()] = test.funcPtr;
-            if (runTest(test.fileName, test.testName, testSteps, report)) {
+            if (runTest(test.fileName, test.testName, fileEntry.suiteName, testSteps, report)) {
                 successCount++;
             } else {
                 errorCount++;
@@ -166,7 +179,7 @@ Report Registry::runSpecificTests(std::vector<FileEntry> &files) {
                 testSteps.push_back(func);
             }
             _currentTestName = "<after file>";
-            if (!runTest(fileEntry.fileName, _currentTestName, testSteps, report)) {
+            if (!runTest(fileEntry.fileName, _currentTestName, fileEntry.suiteName, testSteps, report)) {
                 errorCount++;
                 continue;
             }
@@ -235,4 +248,16 @@ BeforeRegistration::BeforeRegistration(bool file, const char *fileName, void (*t
 
 AfterRegistration::AfterRegistration(bool file, const char *fileName, void (*testPtr)()) noexcept {
     Registry::instance().registerAfter(file, fileName, testPtr);
+}
+
+void Registry::setCurrentSuite(const std::string &suiteName) {
+    this->currentSuite = suiteName;
+}
+
+std::string & Registry::getCurrentSuite() {
+    return currentSuite;
+}
+
+StartSuite::StartSuite(const char *suiteName) noexcept {
+    Registry::instance().setCurrentSuite(suiteName);
 }

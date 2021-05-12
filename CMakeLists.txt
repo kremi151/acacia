@@ -3,6 +3,10 @@ project(acacia CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 
+set(ACACIA_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR} PARENT_SCOPE)
+
+include(acacia.cmake)
+
 set(SOURCES
         source/registry/registry.cpp
         source/exceptions/assertion_exception.cpp

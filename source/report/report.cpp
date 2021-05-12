@@ -6,13 +6,23 @@
 
 using namespace acacia;
 
-TestResult::TestResult(std::string testName, bool success, std::string assertion, unsigned int errorLine, std::string output, std::string errorOutput):
-    testName(std::move(testName)), success(success), assertion(std::move(assertion)), errorLine(errorLine),
-    output(std::move(output)), errorOutput(std::move(errorOutput)) {
+TestResult::TestResult(std::string testName, std::string suiteName, bool success, std::string assertion, unsigned int errorLine, std::string output, std::string errorOutput)
+    : testName(std::move(testName))
+    , suiteName(std::move(suiteName))
+    , success(success)
+    , assertion(std::move(assertion))
+    , errorLine(errorLine)
+    , output(std::move(output))
+    , errorOutput(std::move(errorOutput))
+{
 }
 
 const std::string &TestResult::getTestName() const {
     return testName;
+}
+
+const std::string &TestResult::getSuiteName() const {
+    return suiteName;
 }
 
 const std::string & TestResult::getAssertion() const {
@@ -35,7 +45,11 @@ bool TestResult::isSuccess() const {
     return success;
 }
 
-Report::Report(): testCount(0), successCount(0), errorCount(0) {
+Report::Report()
+    : testCount(0)
+    , successCount(0)
+    , errorCount(0)
+{
 }
 
 Report & Report::operator+=(const Report &other) {
@@ -46,12 +60,12 @@ Report & Report::operator+=(const Report &other) {
     return *this;
 }
 
-void Report::addResult(const std::string &fileName, std::string testName, bool success, std::string assertion, unsigned int errorLine, std::string output, std::string errorOutput) {
+void Report::addResult(const std::string &fileName, std::string testName, std::string suiteName, bool success, std::string assertion, unsigned int errorLine, std::string output, std::string errorOutput) {
     if (results.find(fileName) == results.end()) {
         results.insert(std::pair(fileName, std::vector<TestResult>()));
     }
     std::vector<TestResult> &v = results[fileName];
-    v.emplace_back(std::move(testName), success, std::move(assertion), errorLine, std::move(output), std::move(errorOutput));
+    v.emplace_back(std::move(testName), std::move(suiteName), success, std::move(assertion), errorLine, std::move(output), std::move(errorOutput));
 }
 
 void Report::setCounts(size_t all, size_t success, size_t error) {
@@ -64,7 +78,15 @@ std::map<std::string, std::vector<TestResult> >::const_iterator Report::results_
     return results.begin();
 }
 
+std::map<std::string, std::vector<TestResult> >::const_iterator Report::results_begin() const {
+    return results.begin();
+}
+
 std::map<std::string, std::vector<TestResult> >::const_iterator Report::results_end() {
+    return results.end();
+}
+
+std::map<std::string, std::vector<TestResult> >::const_iterator Report::results_end() const {
     return results.end();
 }
 

@@ -1,0 +1,5 @@
+#include <acacia.h>
+
+namespace __Acacia__TestSuite_@ACACIA_TEST_SUITE_NAME@ {
+    acacia::Report runSuite();
+}
