@@ -13,6 +13,18 @@
 #define PATH_SEP '/'
 #endif
 
+// #define DEBUG_LOGGING
+
+#ifdef DEBUG_LOGGING
+#define fprintf_debug(p, s, ...) fprintf(p, s, __VA_ARGS__)
+#else
+#define fprintf_debug(p, s, ...) ((void) 0)
+#endif
+
+#define PRINT_BLUE "\033[0;34m"
+#define PRINT_GREEN "\033[0;32m"
+#define PRINT_RESET "\033[0m"
+
 int scanFile(const char *outputDir, const std::string &inputPath, std::ofstream &suitesHeaderOut, std::ofstream &suitesSourceOut);
 int scanSuite(const std::string &content, size_t endPosition, const std::string &suiteName, const std::string &inputPath, std::ofstream &suitesHeaderOut, std::ofstream &suitesSourceOut);
 size_t findClosingCurly(const std::string &content);
@@ -25,15 +37,15 @@ int main(int argc, char **argv) {
     std::string sourceDir = argv[1];
     const char *outputDir = argv[2];
 
-    fprintf(stdout, "Source dir is %s\n", sourceDir.c_str());
-    fprintf(stdout, "Output dir is %s\n", outputDir);
+    fprintf_debug(stdout, "Source dir is %s\n", sourceDir.c_str());
+    fprintf_debug(stdout, "Output dir is %s\n", outputDir);
 
     std::string suitesHeaderPath = outputDir;
     if (suitesHeaderPath.at(suitesHeaderPath.size() - 1) != PATH_SEP) {
         suitesHeaderPath += PATH_SEP;
     }
     suitesHeaderPath += "suites.h";
-    fprintf(stdout, "Write suites.h to %s\n", suitesHeaderPath.c_str());
+    fprintf_debug(stdout, "Write suites.h to %s\n", suitesHeaderPath.c_str());
     std::ofstream suitesHeaderOut(suitesHeaderPath);
     suitesHeaderOut << R"(#ifndef ACACIA_GENERATED_SUITES_H
 #define ACACIA_GENERATED_SUITES_H
@@ -41,7 +53,7 @@ int main(int argc, char **argv) {
 )";
 
     std::string suitesSourcePath = suitesHeaderPath.substr(0, suitesHeaderPath.size() - sizeof("suites.h") + 1) + "test_suites.cpp";
-    fprintf(stdout, "Write test_suites.cpp to %s\n", suitesSourcePath.c_str());
+    fprintf_debug(stdout, "Write test_suites.cpp to %s\n", suitesSourcePath.c_str());
     std::ofstream suitesSourceOut(suitesSourcePath);
     suitesSourceOut << R"(#include <acacia.h>
 #include <util/test_suites.h>
@@ -68,7 +80,7 @@ void acacia::populateSuites(std::map<std::string, SuiteRunner> &suites) {
 }
 
 int scanFile(const char *outputDir, const std::string &inputPath, std::ofstream &suitesHeaderOut, std::ofstream &suitesSourceOut) {
-    fprintf(stdout, "Analyzing test source file %s...\n", inputPath.c_str());
+    fprintf(stdout, PRINT_BLUE "Analyzing test source file %s...\n" PRINT_RESET, inputPath.c_str());
 
     std::ifstream ifstream(inputPath);
     if (!ifstream) {
@@ -86,7 +98,7 @@ int scanFile(const char *outputDir, const std::string &inputPath, std::ofstream 
     int status;
     while (std::regex_search(content, suiteMatch, suiteRegex)) {
         std::string suiteName = suiteMatch.str(1);
-        printf("Found test suite %s\n", suiteName.c_str());
+        printf("- Found test suite " PRINT_GREEN "%s" PRINT_RESET "\n", suiteName.c_str());
 
         content = suiteMatch.suffix();
         size_t suiteEndPosition = findClosingCurly(content);
