@@ -9,8 +9,10 @@
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
 #define PATH_SEP '\\'
+#define BINARY_EXT ".exe"
 #else
 #define PATH_SEP '/'
+#define BINARY_EXT ""
 #endif
 
 // #define DEBUG_LOGGING
@@ -25,13 +27,16 @@
 #define PRINT_GREEN "\033[0;32m"
 #define PRINT_RESET "\033[0m"
 
-int scanFile(const char *outputDir, const std::string &inputPath, std::ofstream &suitesHeaderOut, std::ofstream &suitesSourceOut);
+int scanFile(const std::string &inputPath, std::ofstream &suitesHeaderOut, std::ofstream &suitesSourceOut);
 int scanSuite(const std::string &content, size_t endPosition, const std::string &suiteName, const std::string &inputPath, std::ofstream &suitesHeaderOut, std::ofstream &suitesSourceOut);
 size_t findClosingCurly(const std::string &content);
+void ensureTrailingPathSeparator(std::string &inputPath);
+void printUsage(FILE *stream);
 
 int main(int argc, char **argv) {
     if (argc < 3) {
         fprintf(stderr, "Missing arguments\n");
+        printUsage(stderr);
         return 1;
     }
     std::string sourceDir = argv[1];
@@ -41,9 +46,7 @@ int main(int argc, char **argv) {
     fprintf_debug(stdout, "Output dir is %s\n", outputDir);
 
     std::string suitesHeaderPath = outputDir;
-    if (suitesHeaderPath.at(suitesHeaderPath.size() - 1) != PATH_SEP) {
-        suitesHeaderPath += PATH_SEP;
-    }
+    ensureTrailingPathSeparator(suitesHeaderPath);
     suitesHeaderPath += "suites.h";
     fprintf_debug(stdout, "Write suites.h to %s\n", suitesHeaderPath.c_str());
     std::ofstream suitesHeaderOut(suitesHeaderPath);
@@ -65,11 +68,9 @@ void acacia::populateSuites(std::map<std::string, SuiteRunner> &suites) {
     int status;
     for (int i = 3 ; i < argc ; i++) {
         std::string inputPath = sourceDir;
-        if (inputPath.at(inputPath.size() - 1) != PATH_SEP) {
-            inputPath += PATH_SEP;
-        }
+        ensureTrailingPathSeparator(inputPath);
         inputPath += argv[i];
-        status = scanFile(outputDir, inputPath, suitesHeaderOut, suitesSourceOut);
+        status = scanFile(inputPath, suitesHeaderOut, suitesSourceOut);
         if (status != 0) {
             return status;
         }
@@ -79,7 +80,7 @@ void acacia::populateSuites(std::map<std::string, SuiteRunner> &suites) {
     suitesSourceOut << "}\n";
 }
 
-int scanFile(const char *outputDir, const std::string &inputPath, std::ofstream &suitesHeaderOut, std::ofstream &suitesSourceOut) {
+int scanFile(const std::string &inputPath, std::ofstream &suitesHeaderOut, std::ofstream &suitesSourceOut) {
     fprintf(stdout, PRINT_BLUE "Analyzing test source file %s...\n" PRINT_RESET, inputPath.c_str());
 
     std::ifstream ifstream(inputPath);
@@ -143,4 +144,14 @@ size_t findClosingCurly(const std::string &content) {
         }
     }
     return 0;
+}
+
+void ensureTrailingPathSeparator(std::string &inputPath) {
+    if (inputPath.at(inputPath.size() - 1) != PATH_SEP) {
+        inputPath += PATH_SEP;
+    }
+}
+
+void printUsage(FILE *stream) {
+    fprintf(stream, "Usage:\nacacia-gen" BINARY_EXT " <source dir> <output dir> [<test source 1> <test source 2> ...]");
 }
