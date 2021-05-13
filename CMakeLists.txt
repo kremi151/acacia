@@ -9,9 +9,17 @@ include(acacia.cmake)
 
 set(GENERATOR_SOURCES
         generator-source/main.cpp
+        generator-source/scan_file.cpp
+        generator-source/scan_suite.cpp
+        generator-source/utils.cpp
         )
 
 set(GENERATOR_HEADERS
+        generator-source/scan_file.h
+        generator-source/scan_suite.h
+        generator-source/utils.h
+        generator-source/logging.h
+        generator-source/platform.h
         )
 
 add_executable(acacia-gen ${GENERATOR_SOURCES} ${GENERATOR_HEADERS})
