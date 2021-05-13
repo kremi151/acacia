@@ -19,7 +19,7 @@ macro(set_acacia_test_sources)
             OUTPUT ${ACACIA_GENERATED_DIR}/suites.h ${ACACIA_GENERATED_DIR}/test_suites.cpp
             COMMAND acacia-gen ${CMAKE_CURRENT_SOURCE_DIR} ${ACACIA_GENERATED_DIR} ${ARGV}
             DEPENDS acacia-gen
-            MAIN_DEPENDENCY ${ARGV}
+            MAIN_DEPENDENCY ${ARGV} ""
     )
 
     set(ACACIA_TEST_HEADERS ${ACACIA_TEST_HEADERS} "${ACACIA_GENERATED_DIR}/suites.h")
