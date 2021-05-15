@@ -150,3 +150,15 @@ int status = acacia::runTests(argc, argv, &report);
 std::ofstream reportFile("test-report.xml");
 acacia::generateJUnitReport(report, reportFile);
 ```
+
+### Current limitations
+
+Acacia makes use of automatically generated code for wiring the different test suites together. \
+For this, it currently makes use of regular expressions to search for test suites in a file.
+
+What this means is that:
+- Defining a test suite using a custom macro will break things
+- Using `TEST_SUITE(xyz) {` in a comment will be wrongly interpreted as a suite definition
+- Disabling suites with macros such as `#if`, `#ifdef` or `#ifndef` will not be picked up
+
+Tests defined using the `TEST(xyz)` macro are currently evaluated at runtime, but this may be subject to change in the future (in favor of code generation ahead of time).
