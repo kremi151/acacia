@@ -42,6 +42,9 @@ acacia::Registry::instance().runTests()
 #define __deprecated_runAcaciaFileTests() \
 acacia::Registry::instance().runTestsOfFile(__FILE__)
 
+#define ACACIA_INCLUDES_BEGIN
+#define ACACIA_INCLUDES_END
+
 #define TEST_SUITE(name) \
 namespace __Acacia__TestSuite_##name { \
     acacia::StartSuite suite(#name); \

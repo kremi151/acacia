@@ -159,6 +159,15 @@ For this, it currently makes use of regular expressions to search for test suite
 What this means is that:
 - Defining a test suite using a custom macro will break things
 
-Please note that conditional enabling/disabling of tests and test suites with `#if`, `#ifdef`, `#ifndef`, `#else` and `#elif` macros is supported, but any referenced value in the condition needs to publicly visible.
-
 Tests defined using the `TEST(xyz)` macro are currently evaluated at runtime, but this may be subject to change in the future (in favor of code generation ahead of time).
+
+Please note that conditional enabling/disabling of tests and test suites with `#if`, `#ifdef`, `#ifndef`, `#else` and `#elif` macros is supported, but any referenced value in the condition needs to publicly visible. \
+If you need to have those conditions accessing internal symbols defined using `#define`, you need to explicitly tell acacia to include the source header in the generated code:
+```c++
+#include <acacia.h>
+
+ACACIA_INCLUDES_BEGIN
+#include <my_custom_header.h>
+ACACIA_INCLUDES_END
+```
+By doing this, `my_custom_header.h` will be included in *all* generated sources. 

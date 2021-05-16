@@ -14,9 +14,9 @@
 
 namespace acacia::generator {
 
-    void printMacros(std::ostream &out, const std::vector<std::string> &macros) {
-        for (const std::string &macro : macros) {
-            out << macro << std::endl;
+    void writeLines(std::ostream &out, const std::vector<std::string> &lines) {
+        for (const std::string &line : lines) {
+            out << line << std::endl;
         }
     }
 
@@ -51,33 +51,40 @@ int main(int argc, char **argv) {
 #include <util/test_suites.h>
 #include "suites.h"
 
-void acacia::populateSuites(std::map<std::string, SuiteRunner> &suites) {
 )";
 
     std::vector<acacia::generator::FileTestSuite> fileSuites;
+    std::vector<std::string> customIncludes;
 
     int status;
     for (int i = 3 ; i < argc ; i++) {
         std::string inputPath = sourceDir;
         acacia::generator::ensureTrailingPathSeparator(inputPath);
         inputPath += argv[i];
-        status = acacia::generator::analyzeFile(inputPath, fileSuites);
+        status = acacia::generator::analyzeFile(inputPath, fileSuites, customIncludes);
         if (status != 0) {
             return status;
         }
     }
 
+    acacia::generator::writeLines(suitesHeaderOut, customIncludes);
+
+    acacia::generator::writeLines(suitesSourceOut, customIncludes);
+    suitesSourceOut << R"(
+void acacia::populateSuites(std::map<std::string, SuiteRunner> &suites) {
+)";
+
     for (const auto &fileSuite : fileSuites) {
-        acacia::generator::printMacros(suitesHeaderOut, fileSuite.prefixMacros);
+        acacia::generator::writeLines(suitesHeaderOut, fileSuite.prefixMacros);
         suitesHeaderOut << "namespace __Acacia__TestSuite_" << fileSuite.name << R"( {
     acacia::Report runSuite();
 }
 )";
-        acacia::generator::printMacros(suitesHeaderOut, fileSuite.suffixMacros);
+        acacia::generator::writeLines(suitesHeaderOut, fileSuite.suffixMacros);
 
-        acacia::generator::printMacros(suitesSourceOut, fileSuite.prefixMacros);
+        acacia::generator::writeLines(suitesSourceOut, fileSuite.prefixMacros);
         suitesSourceOut << "\tsuites[\"" << fileSuite.name << "\"] = __Acacia__TestSuite_" << fileSuite.name << "::runSuite;\n";
-        acacia::generator::printMacros(suitesSourceOut, fileSuite.suffixMacros);
+        acacia::generator::writeLines(suitesSourceOut, fileSuite.suffixMacros);
     }
 
     suitesHeaderOut << "#endif\n";

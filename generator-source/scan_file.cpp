@@ -113,9 +113,36 @@ namespace acacia::generator {
         return status;
     }
 
+    int findCustomIncludes(const std::string &filePath, const std::string &inContent, std::vector<std::string> &outIncludes) {
+        size_t beginPos = 0;
+        while (true) {
+            beginPos = inContent.find("ACACIA_INCLUDES_BEGIN", beginPos);
+            if (beginPos == std::string::npos) {
+                return 0;
+            }
+            size_t endPos = inContent.find("ACACIA_INCLUDES_END", beginPos);
+            if (endPos == std::string::npos) {
+                fprintf(stderr, "ACACIA_INCLUDES_END after ACACIA_INCLUDES_BEGIN in %s\n", filePath.c_str());
+                return 5;
+            }
+            std::istringstream in(inContent.substr(beginPos, endPos - beginPos));
+            std::string line;
+            while (std::getline(in, line)) {
+                std::regex includeRegex(R"(#include\s+(<[^<]+>|"[^"]+"))");
+                std::smatch includeMatch;
+                if (!std::regex_search(line, includeMatch, includeRegex)) {
+                    continue;
+                }
+                outIncludes.emplace_back(includeMatch.str());
+            }
+            beginPos = endPos + 1;
+        }
+
+    }
+
 }
 
-int acacia::generator::analyzeFile(const std::string &inputPath, std::vector<FileTestSuite> &suitesOut) {
+int acacia::generator::analyzeFile(const std::string &inputPath, std::vector<FileTestSuite> &suitesOut, std::vector<std::string> &includesOut) {
     fprintf(stdout, PRINT_BLUE "Analyzing test source file %s...\n" PRINT_RESET, inputPath.c_str());
 
     std::ifstream ifstream(inputPath);
@@ -129,6 +156,8 @@ int acacia::generator::analyzeFile(const std::string &inputPath, std::vector<Fil
     ifstream.close();
 
     content = stripComments(content);
+
+    findCustomIncludes(inputPath, content, includesOut);
 
     return analyzeByMacros(content, [&](const std::string &code, const std::vector<std::string> &activeMacros) {
         std::regex suiteRegex(R"(TEST_SUITE\s*\(([^)]+)\)\s*\{)");

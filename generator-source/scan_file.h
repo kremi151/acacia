@@ -13,7 +13,7 @@
 
 namespace acacia::generator {
 
-    int analyzeFile(const std::string &inputPath, std::vector<FileTestSuite> &suitesOut);
+    int analyzeFile(const std::string &inputPath, std::vector<FileTestSuite> &suitesOut, std::vector<std::string> &includesOut);
 
 }
 
