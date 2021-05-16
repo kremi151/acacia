@@ -7,9 +7,21 @@
 #include <fstream>
 #include <vector>
 #include <string>
+#include <sstream>
 
 #include "utils.h"
+#include "typedefs.h"
 #include "logging.h"
+
+namespace acacia::generator {
+
+    void printMacros(std::ostream &out, const std::vector<std::string> &macros) {
+        for (const std::string &macro : macros) {
+            out << macro << std::endl;
+        }
+    }
+
+}
 
 using namespace acacia;
 
@@ -43,7 +55,7 @@ int generator::handleGenerateCommand(int argc, char **argv) {
 void acacia::populateSuites(std::map<std::string, SuiteRunner> &suites) {
 )";
 
-    std::vector<std::string> suites;
+    std::vector<FileTestSuite> suites;
     for (int i = 1 ; i < argc ; i++) {
         std::string metaFile = argv[i];
 
@@ -52,36 +64,25 @@ void acacia::populateSuites(std::map<std::string, SuiteRunner> &suites) {
             fprintf(stderr, "Cannot read input meta file at %s\n", argv[i]);
             return 1;
         }
-        std::string content((std::istreambuf_iterator<char>(ifstream)),
-                            std::istreambuf_iterator<char>());
-        ifstream.close();
 
-        size_t start = 0;
-        while (true) {
-            size_t pos = content.find(';', start);
-            if (pos == std::string::npos) {
-                if (start == 0 && !content.empty()) {
-                    suites.emplace_back(content);
-                }
-                break;
-            }
-            std::string token = content.substr(start, pos - start);
-            if (!token.empty()) {
-                suites.emplace_back(token);
-            }
-            start = pos + 1;
-            if (start >= content.size()) {
-                break;
-            }
+        std::string line;
+        while (std::getline(ifstream, line)) {
+            auto &suite = suites.emplace_back();
+            deserializeTestSuite(line, suite);
         }
     }
 
-    for (const auto &suiteName : suites) {
-        suitesHeaderOut << "namespace __Acacia__TestSuite_" << suiteName << R"( {
+    for (const auto &fileSuite : suites) {
+        acacia::generator::printMacros(suitesHeaderOut, fileSuite.prefixMacros);
+        suitesHeaderOut << "namespace __Acacia__TestSuite_" << fileSuite.name << R"( {
     acacia::Report runSuite();
 }
 )";
-        suitesSourceOut << "\tsuites[\"" << suiteName << "\"] = __Acacia__TestSuite_" << suiteName << "::runSuite;\n";
+        acacia::generator::printMacros(suitesHeaderOut, fileSuite.suffixMacros);
+
+        acacia::generator::printMacros(suitesSourceOut, fileSuite.prefixMacros);
+        suitesSourceOut << "\tsuites[\"" << fileSuite.name << "\"] = __Acacia__TestSuite_" << fileSuite.name << "::runSuite;\n";
+        acacia::generator::printMacros(suitesSourceOut, fileSuite.suffixMacros);
     }
 
     suitesHeaderOut << "#endif\n";

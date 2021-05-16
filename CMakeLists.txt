@@ -31,6 +31,7 @@ set(GENERATOR_HEADERS
         generator-source/cmd_meta.h
         generator-source/cmd_generate.h
         generator-source/fs.h
+        generator-source/typedefs.h
         )
 
 add_executable(acacia-gen ${GENERATOR_SOURCES} ${GENERATOR_HEADERS})

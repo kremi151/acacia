@@ -7,11 +7,12 @@
 
 #include <string>
 #include <vector>
+#include "typedefs.h"
 
 namespace acacia::generator {
 
     int scanSuite(const std::string &content, size_t endPosition, const std::string &suiteName,
-            const std::string &inputPath, std::vector<std::string> &suitesOut);
+                  const std::string &inputPath, std::vector<FileTestSuite> &suitesOut, const std::vector<std::string> &activeMacros);
 
 }
 

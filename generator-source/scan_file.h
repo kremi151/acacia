@@ -7,10 +7,12 @@
 
 #include <string>
 #include <vector>
+#include <string>
+#include "typedefs.h"
 
 namespace acacia::generator {
 
-    int scanFile(const std::string &inputPath, std::vector<std::string> &suitesOut);
+    int analyzeFile(const std::string &inputPath, std::vector<FileTestSuite> &suitesOut);
 
 }
 

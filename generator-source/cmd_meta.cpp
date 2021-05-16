@@ -9,6 +9,7 @@
 #include <fstream>
 
 #include "scan_file.h"
+#include "typedefs.h"
 #include "utils.h"
 
 #ifdef ACACIA_HAS_FS
@@ -31,9 +32,9 @@ int generator::handleMetaCommand(int argc, char **argv) {
     targetFile += argv[2];
     targetFile += ".meta";
 
-    std::vector<std::string> suites;
+    std::vector<FileTestSuite> suites;
 
-    int status = acacia::generator::scanFile(sourceFile, suites);
+    int status = acacia::generator::analyzeFile(sourceFile, suites);
     if (status != 0) {
         fprintf(stderr, "Analyzing file at %s failed\n", sourceFile.c_str());
         return status;
@@ -60,9 +61,9 @@ int generator::handleMetaCommand(int argc, char **argv) {
         if (first) {
             first = false;
         } else {
-            metaOut << ";";
+            metaOut << "\n";
         }
-        metaOut << suite;
+        metaOut << generator::serializeTestSuite(suite);
     }
 
     return 0;
