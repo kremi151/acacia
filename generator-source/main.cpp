@@ -5,10 +5,22 @@
 #include <cstdio>
 #include <fstream>
 #include <string>
+#include <vector>
 
 #include "scan_file.h"
 #include "logging.h"
 #include "utils.h"
+#include "typedefs.h"
+
+namespace acacia::generator {
+
+    void printMacros(std::ostream &out, const std::vector<std::string> &macros) {
+        for (const std::string &macro : macros) {
+            out << macro << std::endl;
+        }
+    }
+
+}
 
 int main(int argc, char **argv) {
     if (argc < 3) {
@@ -42,15 +54,30 @@ int main(int argc, char **argv) {
 void acacia::populateSuites(std::map<std::string, SuiteRunner> &suites) {
 )";
 
+    std::vector<acacia::generator::FileTestSuite> fileSuites;
+
     int status;
     for (int i = 3 ; i < argc ; i++) {
         std::string inputPath = sourceDir;
         acacia::generator::ensureTrailingPathSeparator(inputPath);
         inputPath += argv[i];
-        status = acacia::generator::scanFile(inputPath, suitesHeaderOut, suitesSourceOut);
+        status = acacia::generator::analyzeFile(inputPath, fileSuites);
         if (status != 0) {
             return status;
         }
+    }
+
+    for (const auto &fileSuite : fileSuites) {
+        acacia::generator::printMacros(suitesHeaderOut, fileSuite.prefixMacros);
+        suitesHeaderOut << "namespace __Acacia__TestSuite_" << fileSuite.name << R"( {
+    acacia::Report runSuite();
+}
+)";
+        acacia::generator::printMacros(suitesHeaderOut, fileSuite.suffixMacros);
+
+        acacia::generator::printMacros(suitesSourceOut, fileSuite.prefixMacros);
+        suitesSourceOut << "\tsuites[\"" << fileSuite.name << "\"] = __Acacia__TestSuite_" << fileSuite.name << "::runSuite;\n";
+        acacia::generator::printMacros(suitesSourceOut, fileSuite.suffixMacros);
     }
 
     suitesHeaderOut << "#endif\n";

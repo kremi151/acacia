@@ -7,12 +7,14 @@
 
 #include <string>
 #include <cstdio>
+#include <vector>
 
 namespace acacia::generator {
 
     size_t findClosingCurly(const std::string &content);
     void ensureTrailingPathSeparator(std::string &inputPath);
     void printUsage(FILE *stream);
+    void popBackToStartingIfMacro(std::vector<std::string> &macros);
 
 }
 

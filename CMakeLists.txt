@@ -20,6 +20,7 @@ set(GENERATOR_HEADERS
         generator-source/utils.h
         generator-source/logging.h
         generator-source/platform.h
+        generator-source/typedefs.h
         )
 
 add_executable(acacia-gen ${GENERATOR_SOURCES} ${GENERATOR_HEADERS})
