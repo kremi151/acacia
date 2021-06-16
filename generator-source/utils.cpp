@@ -32,5 +32,7 @@ void generator::ensureTrailingPathSeparator(std::string &inputPath) {
 }
 
 void generator::printUsage(FILE *stream) {
-    fprintf(stream, "Usage:\nacacia-gen" BINARY_EXT " <source dir> <output dir> [<test source 1> <test source 2> ...]");
+    fprintf(stream, "Usage:\n");
+    fprintf(stream, "acacia-gen" BINARY_EXT " meta <source root dir> <meta root dir> <input file>\n");
+    fprintf(stream, "acacia-gen" BINARY_EXT " generate <output dir> <meta file 1> <meta file 2> ...\n");
 }

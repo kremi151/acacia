@@ -6,11 +6,11 @@
 #define ACACIA_GEN_SCAN_FILE_H
 
 #include <string>
-#include <ostream>
+#include <vector>
 
 namespace acacia::generator {
 
-    int scanFile(const std::string &inputPath, std::ostream &suitesHeaderOut, std::ostream &suitesSourceOut);
+    int scanFile(const std::string &inputPath, std::vector<std::string> &suitesOut);
 
 }
 

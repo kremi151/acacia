@@ -5,13 +5,34 @@
 #include <cstdio>
 #include <fstream>
 #include <string>
+#include <cstring>
 
-#include "scan_file.h"
 #include "logging.h"
 #include "utils.h"
+#include "cmd_meta.h"
+#include "cmd_generate.h"
 
 int main(int argc, char **argv) {
-    if (argc < 3) {
+    if (argc < 2) {
+        acacia::generator::printUsage(stderr);
+        return 1;
+    }
+    if (std::strcmp("help", argv[1]) == 0) {
+        acacia::generator::printUsage(stdout);
+        return 0;
+    }
+    if (std::strcmp("meta", argv[1]) == 0) {
+        return acacia::generator::handleMetaCommand(argc - 2, argv + 2);
+    }
+    if (std::strcmp("generate", argv[1]) == 0) {
+        return acacia::generator::handleGenerateCommand(argc - 2, argv + 2);
+    }
+    acacia::generator::printUsage(stderr);
+    return 1;
+}
+
+int main_old(int argc, char **argv) {
+    if (argc < 4) {
         fprintf(stderr, "Missing arguments\n");
         acacia::generator::printUsage(stderr);
         return 1;
@@ -44,10 +65,7 @@ void acacia::populateSuites(std::map<std::string, SuiteRunner> &suites) {
 
     int status;
     for (int i = 3 ; i < argc ; i++) {
-        std::string inputPath = sourceDir;
-        acacia::generator::ensureTrailingPathSeparator(inputPath);
-        inputPath += argv[i];
-        status = acacia::generator::scanFile(inputPath, suitesHeaderOut, suitesSourceOut);
+
         if (status != 0) {
             return status;
         }

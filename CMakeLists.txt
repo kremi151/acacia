@@ -12,6 +12,8 @@ set(GENERATOR_SOURCES
         generator-source/scan_file.cpp
         generator-source/scan_suite.cpp
         generator-source/utils.cpp
+        generator-source/cmd_meta.cpp
+        generator-source/cmd_generate.cpp
         )
 
 set(GENERATOR_HEADERS
@@ -20,6 +22,8 @@ set(GENERATOR_HEADERS
         generator-source/utils.h
         generator-source/logging.h
         generator-source/platform.h
+        generator-source/cmd_meta.h
+        generator-source/cmd_generate.h
         )
 
 add_executable(acacia-gen ${GENERATOR_SOURCES} ${GENERATOR_HEADERS})

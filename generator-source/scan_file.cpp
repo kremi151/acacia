@@ -10,7 +10,7 @@
 #include "utils.h"
 #include "logging.h"
 
-int acacia::generator::scanFile(const std::string &inputPath, std::ostream &suitesHeaderOut, std::ostream &suitesSourceOut) {
+int acacia::generator::scanFile(const std::string &inputPath, std::vector<std::string> &suitesOut) {
     fprintf(stdout, PRINT_BLUE "Analyzing test source file %s...\n" PRINT_RESET, inputPath.c_str());
 
     std::ifstream ifstream(inputPath);
@@ -38,7 +38,7 @@ int acacia::generator::scanFile(const std::string &inputPath, std::ostream &suit
             return 3;
         }
 
-        status = scanSuite(content, suiteEndPosition, suiteName, inputPath, suitesHeaderOut, suitesSourceOut);
+        status = scanSuite(content, suiteEndPosition, suiteName, inputPath, suitesOut);
         if (status != 0) {
             return status;
         }
