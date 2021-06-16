@@ -5,6 +5,12 @@ set(CMAKE_CXX_STANDARD 17)
 
 set(ACACIA_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR} PARENT_SCOPE)
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake-modules)
+
+# Filesystem support is optional
+# If not supported, generated source folders will be created by CMake
+find_package(Filesystem)
+
 include(acacia.cmake)
 
 set(GENERATOR_SOURCES
@@ -24,9 +30,14 @@ set(GENERATOR_HEADERS
         generator-source/platform.h
         generator-source/cmd_meta.h
         generator-source/cmd_generate.h
+        generator-source/fs.h
         )
 
 add_executable(acacia-gen ${GENERATOR_SOURCES} ${GENERATOR_HEADERS})
+if (Filesystem_FOUND)
+    target_link_libraries(acacia-gen CXX::Filesystem)
+    target_compile_definitions(acacia-gen PRIVATE ACACIA_HAS_FS)
+endif()
 
 set(SOURCES
         source/acacia.cpp

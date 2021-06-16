@@ -24,16 +24,31 @@ macro(set_acacia_test_sources)
 
         get_filename_component(ACACIA_TMP_META_PARENT_DIR "${ACACIA_TMP_META_FILE}" DIRECTORY)
 
-        add_custom_target("acacia_meta_${ACACIA_TMP_UUID}" ALL
-                COMMAND ${CMAKE_COMMAND} -E make_directory ${ACACIA_TMP_META_PARENT_DIR})
+        set(ACACIA_TMP_DEPENDENCIES_LIST
+                acacia-gen
+                ${INPUT_FILE}
+                )
+
+        if (Filesystem_FOUND)
+        else()
+            add_custom_target("acacia_meta_${ACACIA_TMP_UUID}" ALL
+                    COMMAND ${CMAKE_COMMAND} -E make_directory ${ACACIA_TMP_META_PARENT_DIR})
+
+            list(APPEND ACACIA_TMP_DEPENDENCIES_LIST "acacia_meta_${ACACIA_TMP_UUID}")
+        endif()
 
         add_custom_command(
                 OUTPUT ${ACACIA_GENERATED_DIR}/meta/${INPUT_FILE}.meta
                 COMMAND acacia-gen meta ${CMAKE_CURRENT_SOURCE_DIR} ${ACACIA_GENERATED_DIR}/meta ${INPUT_FILE}
-                DEPENDS acacia-gen ${INPUT_FILE} "acacia_meta_${ACACIA_TMP_UUID}"
+                DEPENDS ${ACACIA_TMP_DEPENDENCIES_LIST}
         )
 
         list(APPEND ACACIA_META_FILES ${ACACIA_TMP_META_FILE})
+
+        unset(ACACIA_TMP_DEPENDENCIES_LIST)
+        unset(ACACIA_TMP_META_FILE)
+        unset(ACACIA_TMP_META_PARENT_DIR)
+        unset(ACACIA_TMP_UUID)
     endforeach()
 
     add_custom_command(

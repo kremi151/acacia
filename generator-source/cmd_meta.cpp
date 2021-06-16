@@ -11,6 +11,10 @@
 #include "scan_file.h"
 #include "utils.h"
 
+#ifdef ACACIA_HAS_FS
+#include "fs.h"
+#endif
+
 using namespace acacia;
 
 int generator::handleMetaCommand(int argc, char **argv) {
@@ -34,6 +38,16 @@ int generator::handleMetaCommand(int argc, char **argv) {
         fprintf(stderr, "Analyzing file at %s failed\n", sourceFile.c_str());
         return status;
     }
+
+#ifdef ACACIA_HAS_FS
+    fs::path metaParentPath = fs::path(targetFile).parent_path();
+    try {
+        fs::create_directories(metaParentPath);
+    } catch (const fs::filesystem_error &e) {
+        fprintf(stderr, "Unable to create directory at %s: %s\n", metaParentPath.c_str(), e.what());
+        return 1;
+    }
+#endif
 
     std::ofstream metaOut(targetFile);
     if (!metaOut) {
