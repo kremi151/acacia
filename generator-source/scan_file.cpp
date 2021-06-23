@@ -50,7 +50,9 @@ namespace acacia::generator {
     }
 
     int analyzeByMacros(const std::string &inContent, const std::function<int (const std::string &, const std::vector<std::string> &)>& callback) {
-        std::regex macroRegex(R"(^[ \t]*(#[\S]+)(?:[ \t]+(.+))?$)");
+        // The following regex is a substitute for this regex, which sadly doesn't work using C++ APIs:
+        // ^[ \t]*(#[\S]+)(?:[ \t]+(.+))?$
+        std::regex macroRegex(R"((?:^|\r?\n)[ \t]*(#[\S]+)(?:[ \t]+([^\n]+))?)");
         std::smatch macroMatch;
         std::smatch nextMacroMatch;
 
