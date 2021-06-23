@@ -16,8 +16,15 @@ namespace acacia::generator {
         while (true) {
             pos = in.find(',', start);
             if (pos == std::string::npos) {
-                if (start == 0 && !in.empty()) {
-                    out.emplace_back(in);
+                if (start == 0) {
+                    if (!in.empty()) {
+                        out.emplace_back(in);
+                    }
+                } else {
+                    std::string substr = in.substr(start);
+                    if (!substr.empty()) {
+                        out.emplace_back(substr);
+                    }
                 }
                 break;
             }
