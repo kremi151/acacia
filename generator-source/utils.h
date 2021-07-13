@@ -7,12 +7,17 @@
 
 #include <string>
 #include <cstdio>
+#include <vector>
+#include "typedefs.h"
 
 namespace acacia::generator {
 
     size_t findClosingCurly(const std::string &content);
     void ensureTrailingPathSeparator(std::string &inputPath);
     void printUsage(FILE *stream);
+    void popBackToStartingIfMacro(std::vector<std::string> &macros);
+    std::string serializeTestSuite(const FileTestSuite &suite);
+    void deserializeTestSuite(const std::string &in, FileTestSuite &out);
 
 }
 
