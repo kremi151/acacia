@@ -10,8 +10,11 @@
 namespace acacia {
 
     class BaseTestSuite {
+    private:
+        std::string customName;
+
     public:
-        virtual const char *suiteName() = 0;
+        virtual const char *suiteName();
         virtual const char *fileName() = 0;
 
         virtual void describe() = 0;
@@ -23,6 +26,8 @@ namespace acacia {
 
         void after(const std::function<void()> &func);
         void afterAll(const std::function<void()> &func);
+
+        void name(const std::string &name);
 
         void it(const std::string &description, const std::function<void()> &func);
     };

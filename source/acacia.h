@@ -29,6 +29,10 @@ namespace __Acacia__TestSuite_##name##_ { \
     acacia::SuiteRegistration<Suite> __Acacia__suiteRegistration; \
 } \
 const char *__Acacia__TestSuite_ ## name ## _::Suite::suiteName() { \
+    const char *sname = BaseTestSuite::suiteName(); \
+    if (sname != nullptr) { \
+        return sname; \
+    } \
     return #name; \
 } \
 const char *__Acacia__TestSuite_ ## name ## _::Suite::fileName() { \

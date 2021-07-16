@@ -7,8 +7,20 @@
 
 using namespace acacia;
 
+void BaseTestSuite::name(const std::string &name) {
+    customName = name;
+}
+
 void BaseTestSuite::it(const std::string &description, const std::function<void()> &func) {
     Registry::instance().registerTest(fileName(), suiteName(), description.c_str(), func);
+}
+
+const char *BaseTestSuite::suiteName() {
+    if (customName.empty()) {
+        return nullptr;
+    } else {
+        return customName.c_str();
+    }
 }
 
 void BaseTestSuite::beforeAll(const std::function<void()> &func) {
