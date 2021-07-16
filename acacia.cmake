@@ -15,12 +15,12 @@ macro(set_acacia_test_sources)
 
     set(ACACIA_TEST_SOURCES ${ACACIA_TEST_SOURCES} ${ARGV})
 
-    add_custom_command(
-            OUTPUT ${ACACIA_GENERATED_DIR}/suites.h ${ACACIA_GENERATED_DIR}/test_suites.cpp
-            COMMAND acacia-gen ${CMAKE_CURRENT_SOURCE_DIR} ${ACACIA_GENERATED_DIR} ${ARGV}
-            DEPENDS acacia-gen ${ARGV}
-    )
+#    add_custom_command(
+#            OUTPUT ${ACACIA_GENERATED_DIR}/suites.h ${ACACIA_GENERATED_DIR}/test_suites.cpp
+#            COMMAND acacia-gen ${CMAKE_CURRENT_SOURCE_DIR} ${ACACIA_GENERATED_DIR} ${ARGV}
+#            DEPENDS acacia-gen ${ARGV}
+#    )
 
-    set(ACACIA_TEST_HEADERS ${ACACIA_TEST_HEADERS} "${ACACIA_GENERATED_DIR}/suites.h")
-    set(ACACIA_TEST_SOURCES ${ACACIA_TEST_SOURCES} "${ACACIA_GENERATED_DIR}/test_suites.cpp")
+#    set(ACACIA_TEST_HEADERS ${ACACIA_TEST_HEADERS} "${ACACIA_GENERATED_DIR}/suites.h")
+#    set(ACACIA_TEST_SOURCES ${ACACIA_TEST_SOURCES} "${ACACIA_GENERATED_DIR}/test_suites.cpp")
 endmacro()

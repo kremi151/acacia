@@ -9,68 +9,66 @@
 #include <exceptions/assertion_exception.h>
 #include <chrono>
 #include <iomanip>
+#include <utility>
 
 using namespace acacia;
 
-Registry::Registry()
-    : currentSuite("default")
-{
-}
+Registry::Registry() = default;
 
 Registry & Registry::instance() {
     static Registry registry;
     return registry;
 }
 
-void Registry::registerTest(const char *fileName, const char *testName, void (*testPtr)()) {
-    auto &fileEntry = fileEntries[fileName];
-    if (fileEntry.fileName.empty()) {
-        fileEntry.fileName = fileName;
+void Registry::registerTest(const char *fileName, const char *suiteName, const char *testName, const std::function<void()> &func) {
+    auto &suiteEntry = suiteEntries[suiteName];
+    if (suiteEntry.fileName.empty()) {
+        suiteEntry.fileName = fileName;
     }
-    if (fileEntry.suiteName.empty()) {
-        fileEntry.suiteName = currentSuite;
+    if (suiteEntry.suiteName.empty()) {
+        suiteEntry.suiteName = suiteName;
     }
-    fileEntry.tests.push_back({
-        testPtr,
+    suiteEntry.tests.push_back({
+        func,
         testName,
         fileName
     });
 }
 
-void Registry::registerBefore(bool file, const char *fileName, void (*funcPtr)()) {
-    auto &fileEntry = fileEntries[fileName];
-    if (fileEntry.fileName.empty()) {
-        fileEntry.fileName = fileName;
+void Registry::registerBefore(bool file, const char *fileName, const char *suiteName, const std::function<void()> &func) {
+    auto &suiteEntry = suiteEntries[suiteName];
+    if (suiteEntry.fileName.empty()) {
+        suiteEntry.fileName = fileName;
     }
-    if (fileEntry.suiteName.empty()) {
-        fileEntry.suiteName = currentSuite;
+    if (suiteEntry.suiteName.empty()) {
+        suiteEntry.suiteName = suiteName;
     }
     if (file) {
-        fileEntry.beforeFile.push_back(funcPtr);
+        suiteEntry.beforeFile.push_back(func);
     } else {
-        fileEntry.before.push_back(funcPtr);
+        suiteEntry.before.push_back(func);
     }
 }
 
-void Registry::registerAfter(bool file, const char *fileName, void (*funcPtr)()) {
-    auto &fileEntry = fileEntries[fileName];
-    if (fileEntry.fileName.empty()) {
-        fileEntry.fileName = fileName;
+void Registry::registerAfter(bool file, const char *fileName, const char *suiteName, const std::function<void()> &func) {
+    auto &suiteEntry = suiteEntries[suiteName];
+    if (suiteEntry.fileName.empty()) {
+        suiteEntry.fileName = fileName;
     }
-    if (fileEntry.suiteName.empty()) {
-        fileEntry.suiteName = currentSuite;
+    if (suiteEntry.suiteName.empty()) {
+        suiteEntry.suiteName = suiteName;
     }
     if (file) {
-        fileEntry.afterFile.push_back(funcPtr);
+        suiteEntry.afterFile.push_back(func);
     } else {
-        fileEntry.after.push_back(funcPtr);
+        suiteEntry.after.push_back(func);
     }
 }
 
 Report Registry::runTests() {
-    std::vector<FileEntry> tests;
-    for (auto & fileEntry : fileEntries) {
-        tests.push_back(fileEntry.second);
+    std::vector<SuiteEntry> tests;
+    for (auto & suiteEntry : suiteEntries) {
+        tests.push_back(suiteEntry.second);
     }
     std::cout << "Start executing tests all tests" << std::endl;
     return runSpecificTests(tests);
@@ -78,19 +76,26 @@ Report Registry::runTests() {
 
 Report Registry::runTestsOfFile(const std::string &fileName) {
     std::cout << "Start executing tests of " << fileName << std::endl;
-    std::vector<FileEntry> tests;
-    tests.push_back(fileEntries[fileName]);
+    std::vector<SuiteEntry> tests;
+    for (const auto &pair : suiteEntries) {
+        if (pair.second.fileName == fileName) {
+            tests.push_back(pair.second);
+        }
+    }
     return runSpecificTests(tests);
 }
 
-bool Registry::runTest(const std::string &fileName, const std::string &testName, const std::string &suiteName, const std::vector<func_ptr> &steps, Report &outReport) {
+bool Registry::runTest(
+        const std::string &fileName, const std::string &testName, const std::string &suiteName,
+        const std::vector<std::function<void()>> &steps, Report &outReport
+) {
     StreamCapture capStdout(std::cout);
     StreamCapture capStderr(std::cerr);
     currentStdOut = &capStdout;
     currentStdErr = &capStderr;
     bool result;
     try {
-        for (const func_ptr &step : steps) {
+        for (const std::function<void()> &step : steps) {
             step();
         }
         outReport.addResult(fileName, testName, suiteName, true, "", 0, capStdout.str(), capStderr.str());
@@ -123,16 +128,14 @@ bool Registry::runTest(const std::string &fileName, const std::string &testName,
 
 Report Registry::runTestsOfSuite(const std::string &suiteName) {
     std::cout << "Start executing test suite " << suiteName << std::endl;
-    std::vector<FileEntry> tests;
-    for (const auto &pair : fileEntries) {
-        if (pair.second.suiteName == suiteName) {
-            tests.emplace_back(pair.second);
-        }
+    std::vector<SuiteEntry> tests;
+    if (suiteEntries.find(suiteName) != suiteEntries.end()) {
+        tests.emplace_back(suiteEntries[suiteName]);
     }
     return runSpecificTests(tests);
 }
 
-Report Registry::runSpecificTests(std::vector<FileEntry> &files) {
+Report Registry::runSpecificTests(std::vector<SuiteEntry> &suites) {
     std::chrono::steady_clock::time_point chronoBegin = std::chrono::steady_clock::now();
 
     // TODO: Use a map test->state where state = SUCCESS|FAILURE|PENDING
@@ -142,21 +145,21 @@ Report Registry::runSpecificTests(std::vector<FileEntry> &files) {
 
     Report report;
 
-    auto end = files.end();
-    for (auto i = files.begin() ; i != end ; i++) {
-        auto &fileEntry = *i;
+    auto end = suites.end();
+    for (auto i = suites.begin() ; i != end ; i++) {
+        auto &suiteEntry = *i;
 
-        std::vector<func_ptr> testSteps;
+        std::vector<std::function<void()>> testSteps;
 
-        if (!fileEntry.beforeFile.empty()) {
-            for (const auto &func : fileEntry.beforeFile) {
+        if (!suiteEntry.beforeFile.empty()) {
+            for (const auto &func : suiteEntry.beforeFile) {
                 testSteps.push_back(func);
             }
             _currentTestName = "<before file>";
-            if (!runTest(fileEntry.fileName, _currentTestName, fileEntry.suiteName, testSteps, report)) {
+            if (!runTest(suiteEntry.fileName, _currentTestName, suiteEntry.suiteName, testSteps, report)) {
                 errorCount++;
-                for (const auto &test : fileEntry.tests) {
-                    report.addResult(fileEntry.fileName, test.testName, fileEntry.suiteName, false, "Previous error", 0, "", "");
+                for (const auto &test : suiteEntry.tests) {
+                    report.addResult(suiteEntry.fileName, test.testName, suiteEntry.suiteName, false, "Previous error", 0, "", "");
                     errorCount++;
                 }
                 continue;
@@ -164,19 +167,19 @@ Report Registry::runSpecificTests(std::vector<FileEntry> &files) {
         }
 
         testSteps.clear();
-        for (const auto &func : fileEntry.before) {
+        for (const auto &func : suiteEntry.before) {
             testSteps.push_back(func);
         }
         testSteps.push_back(nullptr);
-        for (const auto &func : fileEntry.after) {
+        for (const auto &func : suiteEntry.after) {
             testSteps.push_back(func);
         }
 
-        for (const auto &test : fileEntry.tests) {
+        for (const auto &test : suiteEntry.tests) {
             testCount++;
             _currentTestName = test.testName;
-            testSteps[fileEntry.before.size()] = test.funcPtr;
-            if (runTest(test.fileName, test.testName, fileEntry.suiteName, testSteps, report)) {
+            testSteps[suiteEntry.before.size()] = test.func;
+            if (runTest(test.fileName, test.testName, suiteEntry.suiteName, testSteps, report)) {
                 successCount++;
             } else {
                 errorCount++;
@@ -184,12 +187,12 @@ Report Registry::runSpecificTests(std::vector<FileEntry> &files) {
         }
 
         testSteps.clear();
-        if (!fileEntry.afterFile.empty()) {
-            for (const auto &func : fileEntry.afterFile) {
+        if (!suiteEntry.afterFile.empty()) {
+            for (const auto &func : suiteEntry.afterFile) {
                 testSteps.push_back(func);
             }
             _currentTestName = "<after file>";
-            if (!runTest(fileEntry.fileName, _currentTestName, fileEntry.suiteName, testSteps, report)) {
+            if (!runTest(suiteEntry.fileName, _currentTestName, suiteEntry.suiteName, testSteps, report)) {
                 errorCount++;
                 continue;
             }
@@ -228,6 +231,12 @@ Report Registry::runSpecificTests(std::vector<FileEntry> &files) {
     return report;
 }
 
+void Registry::collectSuiteNames(std::set<std::string> &outList) {
+    for (const auto &pair : suiteEntries) {
+        outList.insert(pair.second.suiteName);
+    }
+}
+
 const std::string &Registry::currentTestName() {
     return _currentTestName;
 }
@@ -246,28 +255,4 @@ std::string Registry::getCurrentStdErr() {
     } else {
         return currentStdErr->str();
     }
-}
-
-TestRegistration::TestRegistration(const char *fileName, const char *testName, void (*testPtr)()) noexcept {
-    Registry::instance().registerTest(fileName, testName, testPtr);
-}
-
-BeforeRegistration::BeforeRegistration(bool file, const char *fileName, void (*testPtr)()) noexcept {
-    Registry::instance().registerBefore(file, fileName, testPtr);
-}
-
-AfterRegistration::AfterRegistration(bool file, const char *fileName, void (*testPtr)()) noexcept {
-    Registry::instance().registerAfter(file, fileName, testPtr);
-}
-
-void Registry::setCurrentSuite(const std::string &suiteName) {
-    this->currentSuite = suiteName;
-}
-
-std::string & Registry::getCurrentSuite() {
-    return currentSuite;
-}
-
-StartSuite::StartSuite(const char *suiteName) noexcept {
-    Registry::instance().setCurrentSuite(suiteName);
 }

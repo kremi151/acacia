@@ -4,10 +4,8 @@
 
 #include "acacia.h"
 
-#include <util/test_suites.h>
-
 #include <iostream>
-#include <map>
+#include <set>
 #include <cstring>
 
 namespace acacia {
@@ -30,11 +28,12 @@ namespace acacia {
     int runTests(int argc, char **argv, Report *outReport) {
         acacia::Report report;
 
-        std::map<std::string, SuiteRunner> suites;
-        std::map<std::string, SuiteRunner> executableSuites;
+        std::set<suite_name> suites;
+        std::set<suite_name> executableSuites;
         bool excludeMode = true;
 
-        populateSuites(suites);
+        // populateSuites(suites);
+        Registry::instance().collectSuiteNames(suites);
 
         executableSuites = suites;
 
@@ -62,14 +61,13 @@ namespace acacia {
                     std::cerr << "Unknown test suite: " << inc << std::endl;
                     return 1;
                 }
-                executableSuites[entry->first] = entry->second;
+                executableSuites.insert(*entry);
             }
         }
 
-        for (auto & suite : executableSuites) {
-            auto executeSuite = suite.second;
-            acacia::Report suiteReport = executeSuite();
-            printSuiteResults(suiteReport, suite.first.c_str());
+        for (auto & suiteName : executableSuites) {
+            acacia::Report suiteReport = Registry::instance().runTestsOfSuite(suiteName);
+            printSuiteResults(suiteReport, suiteName.c_str());
             report += suiteReport;
         }
 
