@@ -66,6 +66,8 @@ namespace acacia {
         static Registry &instance();
     };
 
+    void registerSuiteState(const TestSuiteState &state);
+
     template <class T>
     class SuiteRegistration {
     private:
@@ -73,7 +75,8 @@ namespace acacia {
     public:
         SuiteRegistration() noexcept {
             fprintf(stdout, "REGISTER SUITE %s\n", suite.suiteName());
-            suite.describe();
+            TestSuiteState state = suite.describe();
+            registerSuiteState(state);
         }
     };
 

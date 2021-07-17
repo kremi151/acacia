@@ -8,33 +8,39 @@
 using namespace acacia;
 
 void BaseTestSuite::name(const std::string &name) {
-    customName = name;
+    state.suiteName = name;
 }
 
 void BaseTestSuite::it(const std::string &description, const std::function<void()> &func) {
-    Registry::instance().registerTest(fileName(), suiteName(), description.c_str(), func);
+    auto &elem = state.tests.emplace_back();
+    elem.description = description;
+    elem.func = func;
 }
 
-const char *BaseTestSuite::suiteName() {
-    if (customName.empty()) {
-        return nullptr;
-    } else {
-        return customName.c_str();
+TestSuiteState BaseTestSuite::describe() {
+    state = TestSuiteState{};
+    doDescribe();
+    TestSuiteState theState = state;
+    theState.fileName = fileName();
+    if (state.suiteName.empty()) {
+        state.suiteName = suiteName();
     }
+    state = TestSuiteState{};
+    return theState;
 }
 
 void BaseTestSuite::beforeAll(const std::function<void()> &func) {
-    Registry::instance().registerBefore(true, fileName(), suiteName(), func);
+    state.beforeAll.emplace_back(func);
 }
 
 void BaseTestSuite::before(const std::function<void()> &func) {
-    Registry::instance().registerBefore(false, fileName(), suiteName(), func);
+    state.before.emplace_back(func);
 }
 
 void BaseTestSuite::after(const std::function<void()> &func) {
-    Registry::instance().registerAfter(false, fileName(), suiteName(), func);
+    state.after.emplace_back(func);
 }
 
 void BaseTestSuite::afterAll(const std::function<void()> &func) {
-    Registry::instance().registerAfter(true, fileName(), suiteName(), func);
+    state.afterAll.emplace_back(func);
 }

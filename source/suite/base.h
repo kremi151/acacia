@@ -6,20 +6,38 @@
 #define ACACIA_SUITE_BASE_H
 
 #include <functional>
+#include <string>
+#include <vector>
 
 namespace acacia {
 
+    typedef struct {
+        std::string description;
+        std::function<void()> func;
+    } TestSuiteStateTest;
+
+    typedef struct {
+        std::string suiteName;
+        std::string fileName;
+        std::vector<TestSuiteStateTest> tests;
+        std::vector<std::function<void()>> beforeAll;
+        std::vector<std::function<void()>> before;
+        std::vector<std::function<void()>> after;
+        std::vector<std::function<void()>> afterAll;
+    } TestSuiteState;
+
     class BaseTestSuite {
     private:
-        std::string customName;
+        TestSuiteState state;
 
     public:
-        virtual const char *suiteName();
+        virtual const char *suiteName() = 0;
         virtual const char *fileName() = 0;
 
-        virtual void describe() = 0;
+        TestSuiteState describe();
 
     protected:
+        virtual void doDescribe() = 0;
 
         void before(const std::function<void()> &func);
         void beforeAll(const std::function<void()> &func);

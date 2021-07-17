@@ -256,3 +256,21 @@ std::string Registry::getCurrentStdErr() {
         return currentStdErr->str();
     }
 }
+
+void acacia::registerSuiteState(const TestSuiteState &state) {
+    for (const auto &test : state.tests) {
+        Registry::instance().registerTest(state.fileName.c_str(), state.suiteName.c_str(), test.description.c_str(), test.func);
+    }
+    for (const auto &func : state.beforeAll) {
+        Registry::instance().registerBefore(true, state.fileName.c_str(), state.suiteName.c_str(), func);
+    }
+    for (const auto &func : state.before) {
+        Registry::instance().registerBefore(false, state.fileName.c_str(), state.suiteName.c_str(), func);
+    }
+    for (const auto &func : state.after) {
+        Registry::instance().registerAfter(false, state.fileName.c_str(), state.suiteName.c_str(), func);
+    }
+    for (const auto &func : state.afterAll) {
+        Registry::instance().registerAfter(true, state.fileName.c_str(), state.suiteName.c_str(), func);
+    }
+}
