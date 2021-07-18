@@ -48,7 +48,7 @@ namespace acacia {
         TestSuiteState state;
 
     public:
-        virtual const char *suiteName() = 0;
+        virtual const char *defaultSuiteName() = 0;
         virtual const char *fileName() = 0;
 
         TestSuiteState describe();

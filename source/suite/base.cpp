@@ -22,8 +22,8 @@ TestSuiteState BaseTestSuite::describe() {
     doDescribe();
     TestSuiteState theState = state;
     theState.fileName = fileName();
-    if (state.suiteName.empty()) {
-        state.suiteName = suiteName();
+    if (theState.suiteName.empty()) {
+        theState.suiteName = defaultSuiteName();
     }
     state = TestSuiteState{};
     return theState;

@@ -24,12 +24,12 @@ namespace __Acacia__TestSuite_##name##_ { \
     protected: \
         void doDescribe() override; \
     public: \
-        const char *suiteName() final; \
+        const char *defaultSuiteName() final; \
         const char *fileName() final; \
     }; \
     acacia::SuiteRegistration<Suite> __Acacia__suiteRegistration; \
 } \
-const char *__Acacia__TestSuite_ ## name ## _::Suite::suiteName() { \
+const char *__Acacia__TestSuite_ ## name ## _::Suite::defaultSuiteName() { \
     return #name; \
 } \
 const char *__Acacia__TestSuite_ ## name ## _::Suite::fileName() { \
