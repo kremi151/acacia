@@ -8,6 +8,7 @@
 #include <functional>
 #include <string>
 #include <vector>
+#include <memory>
 
 namespace acacia {
 
@@ -25,6 +26,22 @@ namespace acacia {
         std::vector<std::function<void()>> after;
         std::vector<std::function<void()>> afterAll;
     } TestSuiteState;
+
+    template <class T>
+    class holder {
+    private:
+        T value;
+    public:
+        explicit holder(T val): value(std::move(val)) {}
+
+        T &get() {
+            return value;
+        }
+
+        void set(const T &val) {
+            value = val;
+        }
+    };
 
     class BaseTestSuite {
     private:
@@ -48,6 +65,11 @@ namespace acacia {
         void name(const std::string &name);
 
         void it(const std::string &description, const std::function<void()> &func);
+
+        template <class T>
+        std::shared_ptr<holder<T>> createState(T val) {
+            return std::shared_ptr<holder<T>>(new holder<T>(std::move(val)));
+        }
     };
 
 }
