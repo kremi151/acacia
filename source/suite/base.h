@@ -43,15 +43,19 @@ namespace acacia {
         }
     };
 
+    template <class T> class SuiteRegistration;
+
     class BaseTestSuite {
     private:
-        TestSuiteState state;
+        TestSuiteState *state{};
+
+        TestSuiteState &accessState(const char *fnName);
+
+        void describe(TestSuiteState *state);
 
     public:
         virtual const char *defaultSuiteName() = 0;
         virtual const char *fileName() = 0;
-
-        TestSuiteState describe();
 
     protected:
         virtual void doDescribe() = 0;
@@ -70,6 +74,8 @@ namespace acacia {
         std::shared_ptr<holder<T>> createState(T val) {
             return std::shared_ptr<holder<T>>(new holder<T>(std::move(val)));
         }
+
+        template<class U> friend class SuiteRegistration;
     };
 
 }

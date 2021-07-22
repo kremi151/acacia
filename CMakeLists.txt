@@ -11,6 +11,7 @@ set(SOURCES
         source/acacia.cpp
         source/registry/registry.cpp
         source/exceptions/assertion_exception.cpp
+        source/exceptions/state_exception.cpp
         source/assertions/manual_assertions.cpp
         source/assertions/output_assertions.cpp
         source/assertions/boolean_assertions.cpp
@@ -28,6 +29,7 @@ set(HEADERS
         source/acacia.h
         source/registry/registry.h
         source/exceptions/assertion_exception.h
+        source/exceptions/state_exception.h
         source/assertions/assertions.h
         source/assertions/equality_assertions.h
         source/assertions/compare_assertions.h

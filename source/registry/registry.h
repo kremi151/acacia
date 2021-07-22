@@ -74,7 +74,8 @@ namespace acacia {
         T suite;
     public:
         SuiteRegistration() noexcept {
-            TestSuiteState state = suite.describe();
+            TestSuiteState state;
+            suite.describe(&state);
             fprintf(stdout, "REGISTER SUITE %s\n", state.suiteName.c_str());
             registerSuiteState(state);
         }
