@@ -7,9 +7,13 @@
 
 #include <string>
 
-void __acacia_fail(const std::string& message, const char *file, unsigned int line);
+namespace acacia::assertions {
+
+    void __fail(const std::string& message, const char *file, unsigned int line);
+
+}
 
 #define testFailure(message) \
-__acacia_fail(message, __FILE__, __LINE__)
+acacia::assertions::__fail(message, __FILE__, __LINE__)
 
 #endif //ACACIA_MANUAL_ASSERTIONS_H

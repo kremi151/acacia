@@ -7,28 +7,30 @@
 #include <registry/registry.h>
 #include <exceptions/assertion_exception.h>
 
-void __acacia_assertStandardOutputHas(const char *text, const char *fileName, unsigned int line) {
+using namespace acacia;
+
+void assertions::__assertStandardOutputHas(const char *text, const char *fileName, unsigned int line) {
     auto &registry = acacia::Registry::instance();
     if (registry.getCurrentStdOut().find(text) == std::string::npos) {
         throw acacia::AssertionException(fileName, registry.currentTestName(), line, std::string("Expected string was not found in standard output: ") + text);
     }
 }
 
-void __acacia_assertStandardOutputHasNot(const char *text, const char *fileName, unsigned int line) {
+void assertions::__assertStandardOutputHasNot(const char *text, const char *fileName, unsigned int line) {
     auto &registry = acacia::Registry::instance();
     if (registry.getCurrentStdOut().find(text) != std::string::npos) {
         throw acacia::AssertionException(fileName, registry.currentTestName(), line, std::string("String was found in standard output: ") + text);
     }
 }
 
-void __acacia_assertErrorOutputHas(const char *text, const char *fileName, unsigned int line) {
+void assertions::__assertErrorOutputHas(const char *text, const char *fileName, unsigned int line) {
     auto &registry = acacia::Registry::instance();
     if (registry.getCurrentStdErr().find(text) == std::string::npos) {
         throw acacia::AssertionException(fileName, registry.currentTestName(), line, std::string("Expected string was not found in error output: ") + text);
     }
 }
 
-void __acacia_assertErrorOutputHasNot(const char *text, const char *fileName, unsigned int line) {
+void assertions::__assertErrorOutputHasNot(const char *text, const char *fileName, unsigned int line) {
     auto &registry = acacia::Registry::instance();
     if (registry.getCurrentStdErr().find(text) != std::string::npos) {
         throw acacia::AssertionException(fileName, registry.currentTestName(), line, std::string("String was found in error output: ") + text);

@@ -7,6 +7,8 @@
 #include <registry/registry.h>
 #include <exceptions/assertion_exception.h>
 
-void __acacia_fail(const std::string& message, const char *file, unsigned int line) {
+using namespace acacia;
+
+void assertions::__fail(const std::string& message, const char *file, unsigned int line) {
     throw acacia::AssertionException(file, acacia::Registry::instance().currentTestName(), line, message);
 }

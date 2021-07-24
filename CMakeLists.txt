@@ -14,7 +14,6 @@ set(SOURCES
         source/exceptions/state_exception.cpp
         source/assertions/manual_assertions.cpp
         source/assertions/output_assertions.cpp
-        source/assertions/boolean_assertions.cpp
         source/report/report.cpp
         source/report/acacia_report.cpp
         source/report/junit.cpp
